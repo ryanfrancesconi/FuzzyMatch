@@ -313,16 +313,25 @@ let benchmarks: @Sendable () -> Void = {
         .instructions, .mallocCountTotal, .objectAllocCount, .retainCount, .releaseCount
     ]
 
+    let defaultThreshold: BenchmarkThresholds = .init(relative: [.p25: 10.0, .p50: 10.0, .p75: 10.0])
+    let defaultThresholds: [BenchmarkMetric: BenchmarkThresholds] = [
+        .instructions: defaultThreshold,
+        .mallocCountTotal: defaultThreshold,
+        .objectAllocCount: defaultThreshold,
+        .retainCount: defaultThreshold,
+        .releaseCount: defaultThreshold
+    ]
+
     let configMega = Benchmark.Configuration(
-        metrics: metrics, warmupIterations: 1, scalingFactor: .mega
+        metrics: metrics, warmupIterations: 1, scalingFactor: .mega, thresholds: defaultThresholds
     )
 
     let configKilo = Benchmark.Configuration(
-        metrics: metrics, warmupIterations: 1, scalingFactor: .kilo
+        metrics: metrics, warmupIterations: 1, scalingFactor: .kilo, thresholds: defaultThresholds
     )
 
     let configOne = Benchmark.Configuration(
-        metrics: metrics, warmupIterations: 1, scalingFactor: .one
+        metrics: metrics, warmupIterations: 1, scalingFactor: .one, thresholds: defaultThresholds
     )
 
     let concurrentThreshold: BenchmarkThresholds = .init(relative: [.p25: 15.0, .p50: 15.0, .p75: 15.0])
