@@ -172,7 +172,7 @@ bitmaskTolerance = queryLength <= 3 ? 0 : effectiveMaxEditDistance
 pass = popcount(missingChars) <= bitmaskTolerance
 ```
 
-**Adaptive tolerance:** For queries of 4+ characters, the tolerance equals `effectiveMaxEditDistance`, allowing substitution typos (each edit can account for one missing character type). For very short queries (≤3 characters), tolerance is 0 (strict) — with only 1-3 distinct character types, allowing even one missing type lets nearly everything through, defeating the purpose of the prefilter.
+**Adaptive tolerance:** For queries of 4+ characters, the tolerance equals `effectiveMaxEditDistance`, allowing substitution typos (each edit can account for one missing character type). For very short queries (≤3 characters), tolerance is 0 (strict) — with only 1-3 distinct character types, allowing even one missing type lets nearly everything through, defeating the purpose of the prefilter. This means substitution typos (e.g., "UES" for "USD") are not detected for short queries, but transposition typos (e.g., "UDS" for "USD") still work because they involve the same character set.
 
 **Example:**
 - Query "gubi" matching "getUserById": g, u, b, i all exist → 0 missing, passes

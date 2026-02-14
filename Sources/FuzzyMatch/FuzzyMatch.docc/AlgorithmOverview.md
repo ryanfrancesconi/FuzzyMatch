@@ -82,7 +82,7 @@ pass = (popcount(missingChars) <= bitmaskTolerance)
 
 For queries of 4+ characters, this allows substitution typos (where a character in the query is replaced by a different character in the candidate) while still quickly rejecting candidates that are too different. For example, "hein" can match "heia" (one missing character type, within `bitmaskTolerance` of 1) but a query with three missing character types would be rejected.
 
-For very short queries (≤3 characters), the tolerance is 0 (strict): with only 1-3 distinct character types, allowing even one missing type lets nearly everything through, flooding the expensive edit distance computation with candidates that will ultimately be rejected.
+For very short queries (≤3 characters), the tolerance is 0 (strict): with only 1-3 distinct character types, allowing even one missing type lets nearly everything through, defeating the purpose of the prefilter. This means substitution typos (e.g., "UES" for "USD") are not detected for short queries, but transposition typos (e.g., "UDS" for "USD") still work because they involve the same character set.
 
 ### Stage 3: Trigram Similarity — O(n)
 
