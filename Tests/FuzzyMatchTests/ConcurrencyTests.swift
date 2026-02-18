@@ -99,6 +99,7 @@ private let candidates: [String] = [
     "Johnson & Johnson", "Johnson Controls International", "JPMorgan Chase"
 ]
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func concurrentEditDistanceMatchingIsConsistent() async {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("apple")
@@ -115,7 +116,7 @@ private let candidates: [String] = [
     // Parallel: split into chunks and process with TaskGroup
     let chunkSize = 50
     let chunks = stride(from: 0, to: candidates.count, by: chunkSize).map { start in
-        Array(candidates[start..<min(start + chunkSize, candidates.count)])
+        Array(candidates[start ..< min(start + chunkSize, candidates.count)])
     }
 
     let parallelResults = await withTaskGroup(
@@ -140,7 +141,7 @@ private let candidates: [String] = [
             collected.append(result)
         }
         // Reassemble in chunk order
-        return collected.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
+        return collected.sorted { $0.0 < $1.0 }.flatMap(\.1)
     }
 
     #expect(parallelResults.count == sequentialResults.count)
@@ -150,6 +151,7 @@ private let candidates: [String] = [
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func concurrentSmithWatermanMatchingIsConsistent() async {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("bristol myers")
@@ -166,7 +168,7 @@ private let candidates: [String] = [
     // Parallel
     let chunkSize = 50
     let chunks = stride(from: 0, to: candidates.count, by: chunkSize).map { start in
-        Array(candidates[start..<min(start + chunkSize, candidates.count)])
+        Array(candidates[start ..< min(start + chunkSize, candidates.count)])
     }
 
     let parallelResults = await withTaskGroup(
@@ -190,7 +192,7 @@ private let candidates: [String] = [
         for await result in group {
             collected.append(result)
         }
-        return collected.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
+        return collected.sorted { $0.0 < $1.0 }.flatMap(\.1)
     }
 
     #expect(parallelResults.count == sequentialResults.count)
@@ -200,6 +202,7 @@ private let candidates: [String] = [
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func concurrentMixedModeMatchingIsConsistent() async {
     // Both modes processing the same data concurrently
     let edMatcher = FuzzyMatcher()
@@ -208,49 +211,51 @@ private let candidates: [String] = [
     let swQuery = swMatcher.prepare("international")
 
     // Run both modes in parallel
-    async let edResults: [(String, Double)] = {
-        await withTaskGroup(
-            of: [(String, Double)].self,
-            returning: [(String, Double)].self
-        ) { group in
-            group.addTask {
-                var buffer = edMatcher.makeBuffer()
-                var results: [(String, Double)] = []
-                for candidate in candidates {
-                    if let match = edMatcher.score(
-                        candidate, against: edQuery, buffer: &buffer) {
-                        results.append((candidate, match.score))
-                    }
+    async let edResults: [(String, Double)] = await withTaskGroup(
+        of: [(String, Double)].self,
+        returning: [(String, Double)].self
+    ) { group in
+        group.addTask {
+            var buffer = edMatcher.makeBuffer()
+            var results: [(String, Double)] = []
+            for candidate in candidates {
+                if let match = edMatcher.score(
+                    candidate, against: edQuery, buffer: &buffer
+                ) {
+                    results.append((candidate, match.score))
                 }
-                return results
             }
-            var all: [(String, Double)] = []
-            for await batch in group { all.append(contentsOf: batch) }
-            return all
+            return results
         }
-    }()
+        var all: [(String, Double)] = []
+        for await batch in group {
+            all.append(contentsOf: batch)
+        }
+        return all
+    }
 
-    async let swResults: [(String, Double)] = {
-        await withTaskGroup(
-            of: [(String, Double)].self,
-            returning: [(String, Double)].self
-        ) { group in
-            group.addTask {
-                var buffer = swMatcher.makeBuffer()
-                var results: [(String, Double)] = []
-                for candidate in candidates {
-                    if let match = swMatcher.score(
-                        candidate, against: swQuery, buffer: &buffer) {
-                        results.append((candidate, match.score))
-                    }
+    async let swResults: [(String, Double)] = await withTaskGroup(
+        of: [(String, Double)].self,
+        returning: [(String, Double)].self
+    ) { group in
+        group.addTask {
+            var buffer = swMatcher.makeBuffer()
+            var results: [(String, Double)] = []
+            for candidate in candidates {
+                if let match = swMatcher.score(
+                    candidate, against: swQuery, buffer: &buffer
+                ) {
+                    results.append((candidate, match.score))
                 }
-                return results
             }
-            var all: [(String, Double)] = []
-            for await batch in group { all.append(contentsOf: batch) }
-            return all
+            return results
         }
-    }()
+        var all: [(String, Double)] = []
+        for await batch in group {
+            all.append(contentsOf: batch)
+        }
+        return all
+    }
 
     let ed = await edResults
     let sw = await swResults

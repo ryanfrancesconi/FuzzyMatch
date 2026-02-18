@@ -153,6 +153,7 @@ public struct FuzzyMatcher: Sendable {
     ///     }
     /// }
     /// ```
+    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     public func prepare(_ query: String) -> FuzzyQuery {
         // Convert to lowercased UTF-8 bytes (stripping combining diacritical marks)
         let utf8Bytes = Array(query.utf8)
@@ -162,7 +163,7 @@ public struct FuzzyMatcher: Sendable {
 
         // Truncate to actual length (combining marks may have been stripped)
         if lowercasedLength < lowercased.count {
-            lowercased.removeSubrange(lowercasedLength..<lowercased.count)
+            lowercased.removeSubrange(lowercasedLength ..< lowercased.count)
         }
 
         // Compute character bitmask
@@ -172,11 +173,10 @@ public struct FuzzyMatcher: Sendable {
         let containsSpaces = lowercased.contains(0x20)
 
         // Compute trigrams (only if query is long enough)
-        let trigrams: Set<UInt32>
-        if lowercased.count >= 3 {
-            trigrams = computeTrigrams(lowercased)
+        let trigrams: Set<UInt32> = if lowercased.count >= 3 {
+            computeTrigrams(lowercased)
         } else {
-            trigrams = []
+            []
         }
 
         return FuzzyQuery(
@@ -270,6 +270,7 @@ public struct FuzzyMatcher: Sendable {
     /// - Reuse the same buffer across multiple `score` calls for zero allocations
     /// - The buffer automatically expands if needed for longer strings
     /// - For concurrent usage, each thread must have its own buffer
+    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     public func score(
         _ candidate: String,
         against query: FuzzyQuery,
@@ -282,7 +283,7 @@ public struct FuzzyMatcher: Sendable {
         )
         // Dispatch based on matching algorithm
         switch query.config.algorithm {
-        case .smithWaterman(let swConfig):
+        case let .smithWaterman(swConfig):
             return scoreSmithWatermanImpl(
                 candidate.utf8.span,
                 against: query,
@@ -292,7 +293,7 @@ public struct FuzzyMatcher: Sendable {
                 wordInitials: &buffer.wordInitials
             )
 
-        case .editDistance(let edConfig):
+        case let .editDistance(edConfig):
             // Fast path for 1-character queries: single scan, no buffer needed.
             // Skip for multi-byte queries (e.g. Latin Extended "à" = 2 UTF-8 bytes).
             let queryLength = query.lowercased.count
@@ -324,7 +325,7 @@ public struct FuzzyMatcher: Sendable {
 
     /// Shared mutable state passed between scoring phases.
     @usableFromInline
-    internal struct ScoringState {
+    struct ScoringState {
         @usableFromInline var bestScore: Double = -1.0
         @usableFromInline var bestKind: MatchKind = .prefix
         @usableFromInline var cachedPositionCount: Int = -1
@@ -344,8 +345,9 @@ public struct FuzzyMatcher: Sendable {
     /// Takes buffer components as separate parameters to avoid exclusivity conflicts.
     /// When a Span borrows from candidateStorage.bytes, we can still mutate
     /// editDistanceState, matchPositions, and alignmentState because they're separate parameters.
+    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @inlinable
-    internal func scoreImpl(
+    func scoreImpl(
         _ candidateUTF8: Span<UInt8>,
         against query: FuzzyQuery,
         edConfig: EditDistanceConfig,
@@ -395,7 +397,7 @@ public struct FuzzyMatcher: Sendable {
 
         // Get span from candidateStorage - this borrows from candidateStorage parameter,
         // which allows us to mutate editDistanceState and matchPositions (separate parameters)
-        let candidateSpan = candidateStorage.bytes.span.extracting(0..<actualCandidateLength)
+        let candidateSpan = candidateStorage.bytes.span.extracting(0 ..< actualCandidateLength)
         let querySpan = query.lowercased.span
 
         // Prefilter 3: Trigrams (only if query has enough trigrams to be selective)
@@ -404,7 +406,8 @@ public struct FuzzyMatcher: Sendable {
         // Space-containing trigrams are excluded at computation time, so this
         // is safe for multi-word queries (see computeTrigrams for rationale).
         if query.lowercased.count >= 4
-            && query.trigrams.count > 3 * effectiveMaxEditDistance {
+            && query.trigrams.count > 3 * effectiveMaxEditDistance
+        {
             if !passesTrigramFilter(
                 candidateBytes: candidateSpan,
                 queryTrigrams: query.trigrams,
@@ -501,14 +504,14 @@ public struct FuzzyMatcher: Sendable {
 
     /// Phase 2: Check for exact match (case-insensitive).
     @inlinable
-    internal func checkExactMatch(
+    func checkExactMatch(
         candidateBytes: [UInt8],
         query: FuzzyQuery,
         candidateLength: Int
     ) -> ScoredMatch? {
         let queryLength = query.lowercased.count
         guard candidateLength == queryLength else { return nil }
-        for i in 0..<queryLength {
+        for i in 0 ..< queryLength {
             if candidateBytes[i] != query.lowercased[i] {
                 return nil
             }
@@ -519,7 +522,7 @@ public struct FuzzyMatcher: Sendable {
     /// Phase 3: Prefix edit distance scoring.
     /// Returns the prefix distance (nil if prefix ED exceeded threshold).
     @inlinable
-    internal func scorePrefix(
+    func scorePrefix(
         querySpan: Span<UInt8>,
         candidateSpan: Span<UInt8>,
         query: FuzzyQuery,
@@ -545,7 +548,7 @@ public struct FuzzyMatcher: Sendable {
         // prefix ED typos against same-length candidates. Prevents "UDS" from
         // matching "USD Fund" while allowing "UDS" -> "USD" (both 3 chars).
         // Reduces match counts on large corpora. Distance=0 matches are unaffected.
-        if queryLength <= 3 && distance > 0 && candidateLength != queryLength {
+        if queryLength <= 3, distance > 0, candidateLength != queryLength {
             return nil
         }
 
@@ -560,7 +563,7 @@ public struct FuzzyMatcher: Sendable {
         // the prefix match covers the entire candidate — essentially a typo
         // correction (e.g., "UDS" → "USD"). Recover 70% of the gap to 1.0
         // so these rank well above subsequence matches against long strings.
-        if candidateLength == queryLength && distance > 0 {
+        if candidateLength == queryLength, distance > 0 {
             score += (1.0 - score) * 0.7
         }
 
@@ -610,7 +613,7 @@ public struct FuzzyMatcher: Sendable {
 
     /// Phase 4: Substring edit distance scoring.
     @inlinable
-    internal func scoreSubstring(
+    func scoreSubstring(
         querySpan: Span<UInt8>,
         candidateSpan: Span<UInt8>,
         query: FuzzyQuery,
@@ -626,7 +629,7 @@ public struct FuzzyMatcher: Sendable {
 
         // Skip when prefix match is strong or prefix distance is 0
         // (prefix score with recovery 0.9 always beats substring with 0.8)
-        guard state.bestScore < 0.7 && prefixDistance != 0 else { return }
+        guard state.bestScore < 0.7, prefixDistance != 0 else { return }
 
         let substringDist = substringEditDistance(
             query: querySpan,
@@ -638,7 +641,7 @@ public struct FuzzyMatcher: Sendable {
         guard let distance = substringDist else { return }
 
         // Short query same-length restriction (see scorePrefix for rationale).
-        if queryLength <= 3 && distance > 0 && candidateLength != queryLength {
+        if queryLength <= 3, distance > 0, candidateLength != queryLength {
             return
         }
 
@@ -663,7 +666,7 @@ public struct FuzzyMatcher: Sendable {
 
                     // If exact substring exists but greedy found scattered positions,
                     // scan for a contiguous occurrence (better bonuses + whole-word recovery)
-                    if distance == 0 && positionCount == queryLength {
+                    if distance == 0, positionCount == queryLength {
                         let firstPos = matchPositions[0]
                         let lastPos = matchPositions[positionCount - 1]
                         if lastPos - firstPos + 1 != queryLength {
@@ -673,7 +676,7 @@ public struct FuzzyMatcher: Sendable {
                                 boundaryMask: state.boundaryMask
                             )
                             if contiguousStart >= 0 {
-                                for i in 0..<queryLength {
+                                for i in 0 ..< queryLength {
                                     matchPositions[i] = contiguousStart + i
                                 }
                             }
@@ -718,7 +721,7 @@ public struct FuzzyMatcher: Sendable {
             score -= lengthPenalty
 
             // Whole-word substring recovery
-            if distance == 0 && state.cachedPositionCount == queryLength {
+            if distance == 0, state.cachedPositionCount == queryLength {
                 let firstPos = matchPositions[0]
                 let lastPos = matchPositions[state.cachedPositionCount - 1]
                 if lastPos - firstPos + 1 == queryLength {
@@ -734,7 +737,7 @@ public struct FuzzyMatcher: Sendable {
                             || (nextByte >= 0x61 && nextByte <= 0x7A)
                         endBound = !isAlphaNum
                     }
-                    if startBound && endBound {
+                    if startBound, endBound {
                         score += min(lengthPenalty * 0.8, 0.15)
                     }
                 }
@@ -743,7 +746,7 @@ public struct FuzzyMatcher: Sendable {
 
         score = min(score, 1.0)
 
-        if score > state.bestScore && score >= query.config.minScore {
+        if score > state.bestScore, score >= query.config.minScore {
             state.bestScore = score
             state.bestKind = .substring
         }
@@ -751,7 +754,7 @@ public struct FuzzyMatcher: Sendable {
 
     /// Phase 5: Subsequence (gap-based) scoring fallback.
     @inlinable
-    internal func scoreSubsequence(
+    func scoreSubsequence(
         querySpan: Span<UInt8>,
         candidateSpan: Span<UInt8>,
         query: FuzzyQuery,
@@ -771,7 +774,7 @@ public struct FuzzyMatcher: Sendable {
         // in the candidate. Many candidates that failed ED won't be subsequences.
         if state.cachedPositionCount < 0 {
             var qi = 0
-            for ci in 0..<candidateSpan.count {
+            for ci in 0 ..< candidateSpan.count {
                 if candidateSpan[ci] == querySpan[qi] {
                     qi &+= 1
                     if qi == queryLength { break }
@@ -796,7 +799,7 @@ public struct FuzzyMatcher: Sendable {
 
         // Base score for subsequence: ratio of query length to total gaps
         var totalGaps = 0
-        for i in 1..<positionCount {
+        for i in 1 ..< positionCount {
             totalGaps += matchPositions[i] - matchPositions[i - 1] - 1
         }
         totalGaps += matchPositions[0]
@@ -818,7 +821,7 @@ public struct FuzzyMatcher: Sendable {
             score -= lengthPenalty
         }
 
-        if score > state.bestScore && score >= query.config.minScore {
+        if score > state.bestScore, score >= query.config.minScore {
             state.bestScore = score
             state.bestKind = .substring
         }
@@ -826,7 +829,7 @@ public struct FuzzyMatcher: Sendable {
 
     /// Phase 6: Acronym (word-initial) matching.
     @inlinable
-    internal func scoreAcronym(
+    func scoreAcronym(
         querySpan: Span<UInt8>,
         candidateSpan: Span<UInt8>,
         candidateUTF8: Span<UInt8>,
@@ -839,24 +842,24 @@ public struct FuzzyMatcher: Sendable {
         let queryLength = query.lowercased.count
 
         // Runs for short queries (2-8 chars) and competes with other match types
-        guard queryLength >= 2 && queryLength <= 8 else { return }
+        guard queryLength >= 2, queryLength <= 8 else { return }
 
         // Quick word count check using boundary mask (covers first 64 chars)
         // For long candidates, scan beyond byte 64 for additional word boundaries
         var wordCount = state.boundaryMask.nonzeroBitCount
         if candidateLength > 64 {
-            for i in 64..<candidateLength {
+            for i in 64 ..< candidateLength {
                 if isWordBoundary(at: i, in: candidateSpan) {
                     wordCount += 1
                 }
             }
         }
-        guard wordCount >= 3 && wordCount >= queryLength else { return }
+        guard wordCount >= 3, wordCount >= queryLength else { return }
 
         // Extract word-initial characters from the lowercased candidate
         var initialCount = 0
         let limit = min(candidateLength, 64)
-        for i in 0..<limit {
+        for i in 0 ..< limit {
             if (state.boundaryMask & (1 << i)) != 0 {
                 if initialCount >= wordInitials.count {
                     wordInitials.append(contentsOf: repeatElement(UInt8(0), count: wordInitials.count))
@@ -866,7 +869,7 @@ public struct FuzzyMatcher: Sendable {
             }
         }
         if candidateLength > 64 {
-            for i in 64..<candidateLength {
+            for i in 64 ..< candidateLength {
                 // Use compressed candidateSpan for boundary check (consistent with mask)
                 // Note: camelCase detection is lost on lowercased bytes, but this is an
                 // existing limitation — boundaries from underscores, digits, non-alnum
@@ -883,8 +886,8 @@ public struct FuzzyMatcher: Sendable {
 
         // Subsequence check: is query a subsequence of wordInitials[0..<initialCount]?
         var qi = 0
-        for wi in 0..<initialCount {
-            if qi < queryLength && querySpan[qi] == wordInitials[wi] {
+        for wi in 0 ..< initialCount {
+            if qi < queryLength, querySpan[qi] == wordInitials[wi] {
                 qi += 1
             }
         }
@@ -892,7 +895,7 @@ public struct FuzzyMatcher: Sendable {
 
         let coverage = Double(queryLength) / Double(initialCount)
         let score = (0.55 + 0.4 * coverage) * acronymWeight
-        if score > state.bestScore && score >= query.config.minScore {
+        if score > state.bestScore, score >= query.config.minScore {
             state.bestScore = score
             state.bestKind = .acronym
         }
@@ -902,7 +905,7 @@ public struct FuzzyMatcher: Sendable {
 
     /// Computes alignment if not already cached, updating state. Returns (positionCount, bonus).
     @inlinable
-    internal func computeAlignmentIfNeeded(
+    func computeAlignmentIfNeeded(
         querySpan: Span<UInt8>,
         candidateSpan: Span<UInt8>,
         query: FuzzyQuery,
@@ -951,7 +954,7 @@ public struct FuzzyMatcher: Sendable {
 
     /// Single-character query fast path.
     @inlinable
-    internal func scoreTinyQuery1(
+    func scoreTinyQuery1(
         _ candidateUTF8: Span<UInt8>,
         candidateLength: Int,
         q0: UInt8,
@@ -967,7 +970,7 @@ public struct FuzzyMatcher: Sendable {
         }
 
         // Exact match: 2-byte Latin-1 candidate normalizes to same ASCII letter
-        if candidateLength == 2 && candidateUTF8[0] == 0xC3 {
+        if candidateLength == 2, candidateUTF8[0] == 0xC3 {
             let lowered = lowercaseLatinExtended(candidateUTF8[1])
             if latin1ToASCII(lowered) == q0 {
                 return ScoredMatch(score: 1.0, kind: .exact)
@@ -981,7 +984,7 @@ public struct FuzzyMatcher: Sendable {
         while i < candidateLength {
             let byte = candidateUTF8[i]
             // Check Latin-1 diacritics that normalize to ASCII
-            if byte == 0xC3 && i + 1 < candidateLength {
+            if byte == 0xC3, i + 1 < candidateLength {
                 let lowered = lowercaseLatinExtended(candidateUTF8[i + 1])
                 let ascii = latin1ToASCII(lowered)
                 if ascii == q0 {
@@ -1049,7 +1052,7 @@ public struct FuzzyMatcher: Sendable {
         // Bonuses
         var bonus = 0.0
         if bestIsBoundary { bonus += edConfig.wordBoundaryBonus }
-        if edConfig.firstMatchBonus > 0 && bestPos < edConfig.firstMatchBonusRange {
+        if edConfig.firstMatchBonus > 0, bestPos < edConfig.firstMatchBonusRange {
             let decay = 1.0 - (Double(bestPos) / Double(edConfig.firstMatchBonusRange))
             bonus += edConfig.firstMatchBonus * decay
         }
@@ -1086,7 +1089,7 @@ public struct FuzzyMatcher: Sendable {
 
     /// Inline word boundary check using previous and current bytes.
     @inlinable
-    internal func isWordBoundaryInline(at index: Int, prev: UInt8, curr: UInt8) -> Bool {
+    func isWordBoundaryInline(at index: Int, prev: UInt8, curr: UInt8) -> Bool {
         if index == 0 { return true }
         // After underscore
         if prev == 0x5F { return true }
@@ -1100,10 +1103,10 @@ public struct FuzzyMatcher: Sendable {
         let prevIsAlnum = (prev >= 0x30 && prev <= 0x39)
             || (prev >= 0x41 && prev <= 0x5A)
             || (prev >= 0x61 && prev <= 0x7A)
-            || prev == 0xC3                        // Latin-1 lead
-            || prev == 0xCE || prev == 0xCF        // Greek lead
-            || prev == 0xD0 || prev == 0xD1        // Cyrillic lead
-            || (prev >= 0x80 && prev <= 0xBF)      // continuation byte
+            || prev == 0xC3 // Latin-1 lead
+            || prev == 0xCE || prev == 0xCF // Greek lead
+            || prev == 0xD0 || prev == 0xD1 // Cyrillic lead
+            || (prev >= 0x80 && prev <= 0xBF) // continuation byte
         if !prevIsAlnum { return true }
         return false
     }

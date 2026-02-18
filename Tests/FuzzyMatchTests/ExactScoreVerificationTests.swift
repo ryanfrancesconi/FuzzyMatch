@@ -15,6 +15,7 @@
 import Testing
 
 // MARK: - Exact Score Verification Tests
+
 //
 // These tests verify that scoring produces specific expected values, not just
 // relative ordering. This catches subtle scoring regressions that comparative
@@ -22,6 +23,7 @@ import Testing
 
 // MARK: - Normalized Score Calculation Verification
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreExactMatchIsOne() {
     let score = normalizedScore(
         editDistance: 0,
@@ -32,6 +34,7 @@ import Testing
     #expect(score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreEditDistanceOne() {
     // editDistance: 1, queryLength: 5
     // base = 1.0 - (1/5) = 0.8
@@ -44,6 +47,7 @@ import Testing
     #expect(abs(score - 0.8) < 0.0001)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreEditDistanceTwo() {
     // editDistance: 2, queryLength: 5
     // base = 1.0 - (2/5) = 0.6
@@ -56,6 +60,7 @@ import Testing
     #expect(abs(score - 0.6) < 0.0001)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScorePrefixWeightApplied() {
     // editDistance: 1, queryLength: 5, prefixWeight: 1.5
     // base = 0.8, weighted = max(0, 1.0 - 0.2/1.5) ≈ 0.8667
@@ -65,10 +70,11 @@ import Testing
         kind: .prefix,
         config: EditDistanceConfig(prefixWeight: 1.5, substringWeight: 1.0)
     )
-    let expected = 1.0 - 0.2 / 1.5  // ≈ 0.8667
+    let expected = 1.0 - 0.2 / 1.5 // ≈ 0.8667
     #expect(abs(score - expected) < 0.0001)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreSubstringWeightApplied() {
     // editDistance: 0, queryLength: 5, substringWeight: 0.8
     // With asymptotic formula: max(0, 1.0 - 0/0.8) = 1.0
@@ -82,6 +88,7 @@ import Testing
     #expect(score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func calculateBonusesAffineGapExactValue() {
     // Test affine gap model: opening penalty + extension penalty
     let config = EditDistanceConfig(
@@ -91,9 +98,9 @@ import Testing
         firstMatchBonus: 0.0
     )
 
-    let positions = [0, 5]  // Gap of 4 characters
+    let positions = [0, 5] // Gap of 4 characters
     let candidate = Array("abcdef".utf8)
-    let boundaryMask: UInt64 = 0b1  // Only position 0
+    let boundaryMask: UInt64 = 0b1 // Only position 0
 
     let bonus = calculateBonuses(
         matchPositions: positions,
@@ -111,6 +118,7 @@ import Testing
     #expect(abs(bonus - expected) < 0.001, "Expected \(expected), got \(bonus)")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func calculateBonusesFirstMatchBonusExactValue() {
     // Test first match bonus with position decay
     let config = EditDistanceConfig(
@@ -153,6 +161,7 @@ import Testing
 
 // MARK: - Full Matcher Score Verification
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func exactMatchScoreIsOne() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -164,6 +173,7 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func exactMatchCaseInsensitiveScoreIsOne() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -175,6 +185,7 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixMatchScoreWithDefaultConfig() {
     // Test prefix match score with known configuration
     let config = MatchConfig(
@@ -190,7 +201,7 @@ import Testing
     let matcher = FuzzyMatcher(config: config)
     var buffer = matcher.makeBuffer()
 
-    let query = matcher.prepare("test")  // 4 chars
+    let query = matcher.prepare("test") // 4 chars
     let result = matcher.score("testing", against: query, buffer: &buffer)
 
     #expect(result != nil)
@@ -203,6 +214,7 @@ import Testing
     #expect(result!.score > 0.99)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func perfectPrefixScoresHigherThanTransposedPrefix() {
     // A perfect prefix match (distance=0) should score strictly higher than
     // a transposed prefix match (distance=1), even with prefix weight boosting.
@@ -233,6 +245,7 @@ import Testing
             "Perfect prefix (\(perfectResult!.score)) should score strictly higher than transposed prefix (\(transposedResult!.score))")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func substringMatchScoreWithKnownConfig() {
     let config = MatchConfig(
         algorithm: .editDistance(EditDistanceConfig(
@@ -261,6 +274,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func typoMatchScoreVerification() {
     let config = MatchConfig(
         minScore: 0.0,
@@ -278,7 +292,7 @@ import Testing
     var buffer = matcher.makeBuffer()
 
     // "helo" vs "hello" - one insertion needed, distance = 1
-    let query = matcher.prepare("helo")  // 4 chars
+    let query = matcher.prepare("helo") // 4 chars
     let result = matcher.score("hello", against: query, buffer: &buffer)
 
     #expect(result != nil)
@@ -289,6 +303,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func transpositionMatchScoreVerification() {
     let config = MatchConfig(
         minScore: 0.0,
@@ -306,7 +321,7 @@ import Testing
     var buffer = matcher.makeBuffer()
 
     // "teh" vs "the" - one transposition, distance = 1
-    let query = matcher.prepare("teh")  // 3 chars
+    let query = matcher.prepare("teh") // 3 chars
     let result = matcher.score("the", against: query, buffer: &buffer)
 
     #expect(result != nil)
@@ -319,6 +334,7 @@ import Testing
 
 // MARK: - Word Boundary Score Verification
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func gubiMatchesGetUserByIdWithBonuses() {
     let config = MatchConfig(
         minScore: 0.1,
@@ -346,6 +362,7 @@ import Testing
 
 // MARK: - Score Range Verification
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func allScoresBetweenZeroAndOne() {
     let matcher = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -354,13 +371,13 @@ import Testing
     var buffer = matcher.makeBuffer()
 
     let testCases: [(String, String)] = [
-        ("hello", "hello"),      // Exact
+        ("hello", "hello"), // Exact
         ("hello", "helloworld"), // Prefix
         ("hello", "worldhello"), // Substring
-        ("helo", "hello"),       // Typo
-        ("teh", "the"),          // Transposition
-        ("abc", "abcdef"),       // Short query
-        ("x", "xyz")            // Single char
+        ("helo", "hello"), // Typo
+        ("teh", "the"), // Transposition
+        ("abc", "abcdef"), // Short query
+        ("x", "xyz") // Single char
     ]
 
     for (queryStr, candidate) in testCases {
@@ -374,6 +391,7 @@ import Testing
 
 // MARK: - Score Precision Tests
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scorePrecisionNotLostInCalculation() {
     // Verify floating point calculations don't lose precision
     let config = EditDistanceConfig(
@@ -385,7 +403,7 @@ import Testing
     // These specific values should produce predictable results
     let positions = [0, 1, 2, 3, 4]
     let candidate = Array("abcde".utf8)
-    let boundaryMask: UInt64 = 0b1  // Only position 0
+    let boundaryMask: UInt64 = 0b1 // Only position 0
 
     let bonus = calculateBonuses(
         matchPositions: positions,
@@ -400,7 +418,7 @@ import Testing
     // Total: 0.3
     // Plus firstMatchBonus (default 0.15 at position 0)
     let expectedBase: Double = 0.1 + 0.2
-    let expectedFirstMatch: Double = 0.15  // Full bonus at position 0
+    let expectedFirstMatch: Double = 0.15 // Full bonus at position 0
 
     let expected = expectedBase + expectedFirstMatch
     #expect(abs(bonus - expected) < 0.0001, "Expected \(expected), got \(bonus)")

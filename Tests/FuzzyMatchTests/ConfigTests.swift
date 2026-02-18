@@ -17,6 +17,7 @@ import Testing
 
 // MARK: - maxEditDistance Configuration
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func maxEditDistanceZeroRequiresExactMatch() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 0))))
     let query = matcher.prepare("hello")
@@ -32,6 +33,7 @@ import Testing
     #expect(typoResult == nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func maxEditDistanceOneAllowsSingleEdit() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 1))))
     let query = matcher.prepare("hello")
@@ -57,6 +59,7 @@ import Testing
     #expect(exactResult?.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func maxEditDistanceTwoAllowsTwoEdits() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     let query = matcher.prepare("hello")
@@ -76,6 +79,7 @@ import Testing
     #expect(result3 != nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func maxEditDistanceHighAllowsMoreDifferences() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 5))))
     let query = matcher.prepare("hello")
@@ -90,6 +94,7 @@ import Testing
     #expect(result2 == nil, "Should reject when query chars are missing from candidate")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func maxEditDistanceAffectsLengthBounds() {
     // With maxEditDistance 0, candidate must match exactly
     let matcher0 = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 0))))
@@ -116,6 +121,7 @@ import Testing
     #expect(result3 == nil, "Short query (≤3 chars) uses strict bitmask: missing 'b' → rejected")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskToleranceAdaptsToQueryLength() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -135,6 +141,7 @@ import Testing
 
 // MARK: - minScore Threshold Filtering
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func minScoreFiltersLowScores() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.8))
     let query = matcher.prepare("hello")
@@ -146,6 +153,7 @@ import Testing
     #expect(exactResult!.score >= 0.8)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func minScoreZeroAllowsAllMatches() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 3))))
     let query = matcher.prepare("hello")
@@ -156,6 +164,7 @@ import Testing
     #expect(result != nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func minScoreOneRequiresPerfectMatch() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 1.0))
     let query = matcher.prepare("hello")
@@ -174,6 +183,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func minScoreBoundaryValues() {
     // Test at the boundary
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.5, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
@@ -190,6 +200,7 @@ import Testing
 
 // MARK: - prefixWeight Configuration
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixWeightIncreasesScoreForPrefixMatches() {
     let query = "test"
     let candidate = "testing"
@@ -212,6 +223,7 @@ import Testing
     #expect(score2 >= score1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixWeightCappedAtOne() {
     // Very high prefix weight, but score should be capped at 1.0
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(prefixWeight: 10.0))))
@@ -225,6 +237,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixWeightZeroEffectivelyDisablesPrefixBonus() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(prefixWeight: 0.0))))
     let query = matcher.prepare("test")
@@ -241,6 +254,7 @@ import Testing
 
 // MARK: - substringWeight Configuration
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func substringWeightAffectsSubstringMatchScore() {
     let query = "test"
     let candidate = "unittest"
@@ -263,6 +277,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func substringWeightCappedAtOne() {
     let edConfig = EditDistanceConfig(prefixWeight: 1.0, substringWeight: 5.0)
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(edConfig)))
@@ -278,6 +293,7 @@ import Testing
 
 // MARK: - Weight Ratio Effects
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixVsSubstringWeightRatio() {
     // Test that prefix matches are preferred when prefixWeight > substringWeight
     let matcher = FuzzyMatcher(config: MatchConfig(
@@ -305,6 +321,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func equalWeightsNoPreference() {
     let matcher = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -327,6 +344,7 @@ import Testing
 
 // MARK: - Default Configuration Values
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func defaultConfigurationValues() {
     let config = MatchConfig()
 
@@ -336,6 +354,7 @@ import Testing
     #expect(config.editDistanceConfig!.substringWeight == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func defaultMatcherBehavior() {
     let matcher = FuzzyMatcher() // Uses default config
     var buffer = matcher.makeBuffer()
@@ -358,6 +377,7 @@ import Testing
 
 // MARK: - Configuration Combinations
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func strictConfiguration() {
     // Very strict matching: low edit distance, high min score
     let config = MatchConfig(minScore: 1.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 0)))
@@ -374,6 +394,7 @@ import Testing
     #expect(almostResult == nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lenientConfiguration() {
     // Very lenient matching: high edit distance, low min score
     let config = MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 5)))
@@ -392,6 +413,7 @@ import Testing
 
 // MARK: - Config Stored in Query
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func configStoredInFuzzyQuery() {
     let config = MatchConfig(minScore: 0.1, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 5)))
     let matcher = FuzzyMatcher(config: config)
@@ -403,6 +425,7 @@ import Testing
     #expect(query.config.minScore == 0.1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matcherConfigMatchesQueryConfig() {
     let config = MatchConfig(algorithm: .editDistance(EditDistanceConfig(prefixWeight: 2.5, substringWeight: 0.8)))
     let matcher = FuzzyMatcher(config: config)
@@ -416,10 +439,12 @@ import Testing
 }
 
 // MARK: - Score Cutoff Boundary Sweep
+
 //
 // Systematically tests minScore at 0.1 increments to verify that the threshold
 // is applied correctly across the full range, including boundary precision.
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoreCutoffSweepExactMatch() {
     // Exact match (score=1.0) should pass every threshold up to 1.0
     let thresholds: [Double] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -435,6 +460,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoreCutoffSweepTypoMatch() {
     // "helo" vs "hello" — 1 deletion, should produce a score around 0.8-0.9
     // Find which thresholds it passes vs fails
@@ -463,6 +489,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoreCutoffSweepPrefixMatch() {
     // "test" vs "testing" — exact prefix, score near 1.0 minus length penalty
     let thresholds: [Double] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -488,6 +515,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoreCutoffAtExactThreshold() {
     // Find a candidate's exact score, then set minScore to exactly that value.
     // The result should still pass (>=, not >).
@@ -519,6 +547,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoreCutoffJustAboveExactThreshold() {
     // Set minScore to score + epsilon — should be rejected
     let baseMatcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
@@ -541,6 +570,7 @@ import Testing
 
 // MARK: - MatchConfig Sendable
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchConfigIsSendable() {
     let config = MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 3)))
 
@@ -554,6 +584,7 @@ import Testing
 
 // MARK: - Codable Round-Trip Tests
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func gapPenaltyCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -571,6 +602,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceConfigCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -595,6 +627,7 @@ import Testing
     #expect(decoded == original)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func smithWatermanConfigCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -617,6 +650,7 @@ import Testing
     #expect(decoded == original)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchingAlgorithmCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -635,6 +669,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchConfigCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -653,6 +688,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchKindCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -664,6 +700,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoredMatchCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -674,6 +711,7 @@ import Testing
     #expect(decoded == original)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchResultCodableRoundTrip() throws {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()

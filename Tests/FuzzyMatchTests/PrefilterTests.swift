@@ -16,33 +16,39 @@ import Testing
 
 // MARK: - Length Bounds Filter
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lengthBoundsFilterExactLengthMatch() {
     #expect(passesLengthBounds(candidateLength: 5, queryLength: 5, maxEditDistance: 2))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lengthBoundsFilterCandidateShorterByMaxEditDistance() {
     // Candidate can be up to maxEditDistance shorter
     #expect(passesLengthBounds(candidateLength: 3, queryLength: 5, maxEditDistance: 2))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lengthBoundsFilterCandidateTooShort() {
     // Candidate is 3 characters shorter than allowed
     #expect(!passesLengthBounds(candidateLength: 2, queryLength: 5, maxEditDistance: 2))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lengthBoundsFilterCandidateLonger() {
     // Candidate can be much longer than query (for subsequence matching)
     #expect(passesLengthBounds(candidateLength: 15, queryLength: 5, maxEditDistance: 2))
     #expect(passesLengthBounds(candidateLength: 100, queryLength: 5, maxEditDistance: 2))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lengthBoundsFilterCandidateTooLong() {
     // No upper limit - long candidates are allowed for subsequence matching
     // This test verifies the new behavior
     #expect(passesLengthBounds(candidateLength: 16, queryLength: 5, maxEditDistance: 2))
-    #expect(passesLengthBounds(candidateLength: 1_000, queryLength: 5, maxEditDistance: 2))
+    #expect(passesLengthBounds(candidateLength: 1000, queryLength: 5, maxEditDistance: 2))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lengthBoundsFilterEmptyQuery() {
     // Empty query with maxEditDistance 2 allows candidates with length >= -2 (effectively >= 0)
     #expect(passesLengthBounds(candidateLength: 0, queryLength: 0, maxEditDistance: 2))
@@ -50,6 +56,7 @@ import Testing
     #expect(passesLengthBounds(candidateLength: 1, queryLength: 0, maxEditDistance: 2))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lengthBoundsFilterSingleCharQuery() {
     // Query length 1 with maxEditDistance 2: candidate must be >= -1 (effectively >= 0)
     // No upper limit for subsequence matching
@@ -62,6 +69,7 @@ import Testing
 
 // MARK: - Character Bitmask Computation
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskLowercaseLetters() {
     let bytes: [UInt8] = Array("abc".utf8)
     let mask = computeCharBitmask(bytes)
@@ -70,6 +78,7 @@ import Testing
     #expect(mask == 0b111)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskUppercaseLettersMapsToSameBitsAsLowercase() {
     // The lookup table maps both A-Z and a-z to the same bits 0-25.
     // computeCharBitmask expects lowercased input, but uppercase mapping
@@ -79,6 +88,7 @@ import Testing
     #expect(computeCharBitmask(upper) == computeCharBitmask(lower))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskDigits() {
     let bytes: [UInt8] = Array("012".utf8)
     let mask = computeCharBitmask(bytes)
@@ -88,6 +98,7 @@ import Testing
     #expect(mask == expectedMask)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskUnderscore() {
     let bytes: [UInt8] = Array("_".utf8)
     let mask = computeCharBitmask(bytes)
@@ -96,6 +107,7 @@ import Testing
     #expect(mask == (1 << 36))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskMixedCharacters() {
     let bytes: [UInt8] = Array("a1_".utf8)
     let mask = computeCharBitmask(bytes)
@@ -105,6 +117,7 @@ import Testing
     #expect(mask == expectedMask)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskDuplicateCharacters() {
     // Duplicate characters should result in same mask
     let bytes1: [UInt8] = Array("aaa".utf8)
@@ -113,6 +126,7 @@ import Testing
     #expect(computeCharBitmask(bytes1) == computeCharBitmask(bytes2))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskEmptyInput() {
     let bytes: [UInt8] = []
     let mask = computeCharBitmask(bytes)
@@ -120,6 +134,7 @@ import Testing
     #expect(mask == 0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskAllLowercaseLetters() {
     let bytes: [UInt8] = Array("abcdefghijklmnopqrstuvwxyz".utf8)
     let mask = computeCharBitmask(bytes)
@@ -129,6 +144,7 @@ import Testing
     #expect(mask == expectedMask)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskAllDigits() {
     let bytes: [UInt8] = Array("0123456789".utf8)
     let mask = computeCharBitmask(bytes)
@@ -138,6 +154,7 @@ import Testing
     #expect(mask == expectedMask)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskNonMappedCharacters() {
     // Characters that don't map (space, punctuation) should be ignored
     let bytes: [UInt8] = Array(" !@#$%^&*()".utf8)
@@ -147,10 +164,12 @@ import Testing
 }
 
 // MARK: - Bitmask Filter Correctness
+
 // The bitmask filter checks that the number of distinct missing character types
 // is within the edit budget (popcount(queryMask & ~candidateMask) <= maxEditDistance).
 // Tests below use the default maxEditDistance=0 (strict mode) unless noted otherwise.
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterExactMatch() {
     let queryMask: UInt64 = 0b111 // abc
     let candidateMask: UInt64 = 0b111 // abc
@@ -158,6 +177,7 @@ import Testing
     #expect(passesCharBitmask(queryMask: queryMask, candidateMask: candidateMask))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterCandidateHasMoreCharacters() {
     let queryMask: UInt64 = 0b111 // abc
     let candidateMask: UInt64 = 0b1111 // abcd
@@ -166,6 +186,7 @@ import Testing
     #expect(passesCharBitmask(queryMask: queryMask, candidateMask: candidateMask))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterQueryHasMissingCharacter() {
     let queryMask: UInt64 = 0b1111 // abcd
     let candidateMask: UInt64 = 0b111 // abc
@@ -174,6 +195,7 @@ import Testing
     #expect(!passesCharBitmask(queryMask: queryMask, candidateMask: candidateMask))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterManyMissingCharacters() {
     let queryMask: UInt64 = 0b1111111 // abcdefg (7 chars)
     let candidateMask: UInt64 = 0b111 // abc (3 chars)
@@ -182,6 +204,7 @@ import Testing
     #expect(!passesCharBitmask(queryMask: queryMask, candidateMask: candidateMask))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterTranspositionSameChars() {
     // "test" and "tset" (transposition) have same characters
     let testMask = computeCharBitmask(Array("test".utf8))
@@ -192,6 +215,7 @@ import Testing
     #expect(passesCharBitmask(queryMask: testMask, candidateMask: tsetMask))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterSubstringMatch() {
     // "usr" matching "user" - all query chars exist
     let usrMask = computeCharBitmask(Array("usr".utf8))
@@ -200,6 +224,7 @@ import Testing
     #expect(passesCharBitmask(queryMask: usrMask, candidateMask: userMask))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterAbbreviationMatch() {
     // "gubi" matching "getUserById" - all query chars exist
     let gubiMask = computeCharBitmask(Array("gubi".utf8))
@@ -208,6 +233,7 @@ import Testing
     #expect(passesCharBitmask(queryMask: gubiMask, candidateMask: getUserByIdMask))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskFilterRejectsMissingChar() {
     // "gubi" should NOT match "buildApiXml" - 'g' is missing from candidate
     let gubiMask = computeCharBitmask(Array("gubi".utf8))
@@ -219,24 +245,28 @@ import Testing
 
 // MARK: - lowercaseASCII Function
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseASCIIUppercaseLetters() {
     #expect(lowercaseASCII(0x41) == 0x61) // A -> a
     #expect(lowercaseASCII(0x5A) == 0x7A) // Z -> z
     #expect(lowercaseASCII(0x4D) == 0x6D) // M -> m
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseASCIILowercaseUnchanged() {
     #expect(lowercaseASCII(0x61) == 0x61) // a -> a
     #expect(lowercaseASCII(0x7A) == 0x7A) // z -> z
     #expect(lowercaseASCII(0x6D) == 0x6D) // m -> m
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseASCIIDigitsUnchanged() {
-    for digit: UInt8 in 0x30...0x39 { // '0' to '9'
+    for digit: UInt8 in 0x30 ... 0x39 { // '0' to '9'
         #expect(lowercaseASCII(digit) == digit)
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseASCIISpecialCharactersUnchanged() {
     #expect(lowercaseASCII(0x20) == 0x20) // space
     #expect(lowercaseASCII(0x5F) == 0x5F) // underscore
@@ -244,6 +274,7 @@ import Testing
     #expect(lowercaseASCII(0x2E) == 0x2E) // period
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseASCIIBoundaryValues() {
     // Just before 'A' (0x40 = '@')
     #expect(lowercaseASCII(0x40) == 0x40)
@@ -251,6 +282,7 @@ import Testing
     #expect(lowercaseASCII(0x5B) == 0x5B)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseASCIINonASCIIPassThrough() {
     // Non-ASCII bytes should pass through unchanged
     #expect(lowercaseASCII(0x80) == 0x80)
@@ -260,37 +292,44 @@ import Testing
 
 // MARK: - Latin Extended Case Folding
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseLatinExtendedAGrave() {
     // U+00C0 (À) second byte is 0x80, should fold to 0xA0 (à)
     #expect(lowercaseLatinExtended(0x80) == 0xA0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseLatinExtendedNTilde() {
     // U+00D1 (Ñ) second byte is 0x91, should fold to 0xB1 (ñ)
     #expect(lowercaseLatinExtended(0x91) == 0xB1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseLatinExtendedMultiplicationSign() {
     // U+00D7 (×) second byte is 0x97, should NOT be folded (not a letter)
     #expect(lowercaseLatinExtended(0x97) == 0x97)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseLatinExtendedThorn() {
     // U+00DE (Þ) second byte is 0x9E, should fold to 0xBE (þ)
     #expect(lowercaseLatinExtended(0x9E) == 0xBE)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func lowercaseLatinExtendedAlreadyLowercase() {
     // U+00E0 (à) second byte is 0xA0, should not be changed
     #expect(lowercaseLatinExtended(0xA0) == 0xA0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isLatinExtendedLeadByte() {
     #expect(isLatinExtendedLead(0xC3))
     #expect(!isLatinExtendedLead(0xC4))
     #expect(!isLatinExtendedLead(0x41))
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func latinExtendedCaseFoldingInMatcher() {
     // Test that FuzzyMatcher handles Latin-1 case folding correctly
     let matcher = FuzzyMatcher()
@@ -309,6 +348,7 @@ import Testing
     #expect(result2?.score == 1.0) // Should be exact match after case folding
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func latinExtendedWordBoundaryNotTriggered() {
     // Accented characters should not trigger word boundaries incorrectly
     let bytes = Array("Société".utf8)
@@ -320,6 +360,7 @@ import Testing
 
 // MARK: - German Characters
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func germanUmlautCaseFolding() {
     // Ä (U+00C4) → ä (U+00E4), Ö (U+00D6) → ö (U+00F6), Ü (U+00DC) → ü (U+00FC)
     // UTF-8: 0xC3 0x84 → 0xC3 0xA4, 0xC3 0x96 → 0xC3 0xB6, 0xC3 0x9C → 0xC3 0xBC
@@ -328,12 +369,14 @@ import Testing
     #expect(lowercaseLatinExtended(0x9C) == 0xBC) // Ü → ü
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func germanEszettNotFolded() {
     // ß (U+00DF) is lowercase-only in Latin-1, second byte 0x9F
     // Should not be changed (it's at the boundary between upper and lower range)
     #expect(lowercaseLatinExtended(0x9F) == 0x9F)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func germanUmlautMatcherCaseInsensitive() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -345,6 +388,7 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func germanUmlautExactMatch() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -355,6 +399,7 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func germanCompanyNameFuzzyMatch() {
     // Realistic: searching for a German company/instrument name
     let matcher = FuzzyMatcher()
@@ -370,6 +415,7 @@ import Testing
     #expect(result2 != nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func germanEszettInCandidate() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -383,12 +429,14 @@ import Testing
 
 // MARK: - Swedish Characters
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swedishAringCaseFolding() {
     // Å (U+00C5) → å (U+00E5)
     // UTF-8: 0xC3 0x85 → 0xC3 0xA5
     #expect(lowercaseLatinExtended(0x85) == 0xA5) // Å → å
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swedishCharactersCaseFolding() {
     // Swedish uses Ä/ä and Ö/ö (shared with German) plus Å/å
     // Verify all three pairs
@@ -397,6 +445,7 @@ import Testing
     #expect(lowercaseLatinExtended(0x96) == 0xB6) // Ö → ö
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swedishAringMatcherCaseInsensitive() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -407,6 +456,7 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swedishCompanyNameFuzzyMatch() {
     // Realistic: Swedish company/instrument name
     let matcher = FuzzyMatcher()
@@ -422,6 +472,7 @@ import Testing
     #expect(result2 != nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swedishMixedUmlautsInQuery() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()

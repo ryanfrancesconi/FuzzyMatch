@@ -16,6 +16,7 @@ import Testing
 
 // MARK: - Damerau-Levenshtein Basic Cases
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceIdenticalStrings() {
     let query: [UInt8] = Array("hello".utf8)
     let candidate: [UInt8] = Array("hello".utf8)
@@ -31,6 +32,7 @@ import Testing
     #expect(distance == 0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceSingleInsertion() {
     let query: [UInt8] = Array("helo".utf8)
     let candidate: [UInt8] = Array("hello".utf8)
@@ -46,6 +48,7 @@ import Testing
     #expect(distance == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceSingleDeletion() {
     let query: [UInt8] = Array("hello".utf8)
     let candidate: [UInt8] = Array("helo".utf8)
@@ -61,6 +64,7 @@ import Testing
     #expect(distance == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceSingleSubstitution() {
     let query: [UInt8] = Array("hello".utf8)
     let candidate: [UInt8] = Array("hallo".utf8)
@@ -78,6 +82,7 @@ import Testing
 
 // MARK: - Transposition Detection
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func transpositionDetectedAsSingleEdit() {
     // "teh" vs "the" should be distance 1 (transposition)
     let query: [UInt8] = Array("teh".utf8)
@@ -94,6 +99,7 @@ import Testing
     #expect(distance == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func transpositionAtMiddle() {
     // "abdc" vs "abcd" - transposition of c and d
     let query: [UInt8] = Array("abdc".utf8)
@@ -110,6 +116,7 @@ import Testing
     #expect(distance == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func transpositionAtStart() {
     // "ba" vs "ab" - transposition at start
     let query: [UInt8] = Array("ba".utf8)
@@ -128,6 +135,7 @@ import Testing
 
 // MARK: - Prefix Edit Distance
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixEditDistanceQueryAsPrefixOfCandidate() {
     // Query "test" should match prefix of "testing" with distance 0
     let query: [UInt8] = Array("test".utf8)
@@ -144,6 +152,7 @@ import Testing
     #expect(distance == 0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixEditDistanceWithTypo() {
     // Query "tset" should match prefix of "testing" with distance 1 (transposition)
     let query: [UInt8] = Array("tset".utf8)
@@ -160,6 +169,7 @@ import Testing
     #expect(distance == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixEditDistanceEmptyQuery() {
     let query: [UInt8] = []
     let candidate: [UInt8] = Array("hello".utf8)
@@ -177,6 +187,7 @@ import Testing
 
 // MARK: - Substring Edit Distance
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func substringEditDistanceExactSubstring() {
     let query: [UInt8] = Array("test".utf8)
     let candidate: [UInt8] = Array("unittest".utf8)
@@ -192,6 +203,7 @@ import Testing
     #expect(distance == 0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func substringEditDistanceWithTypo() {
     // "tset" should match "testing" in "mytesting" with distance 1
     let query: [UInt8] = Array("tset".utf8)
@@ -208,6 +220,7 @@ import Testing
     #expect(distance == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func substringEditDistanceInMiddle() {
     let query: [UInt8] = Array("world".utf8)
     let candidate: [UInt8] = Array("helloworldtest".utf8)
@@ -225,6 +238,7 @@ import Testing
 
 // MARK: - Early Exit with maxEditDistance
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func earlyExitWhenDistanceExceedsMax() {
     let query: [UInt8] = Array("abcdef".utf8)
     let candidate: [UInt8] = Array("xxxxxx".utf8)
@@ -240,6 +254,7 @@ import Testing
     #expect(distance == nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func distanceAtMaxEditDistanceReturnsValue() {
     // Two substitutions: "aa" -> "bb"
     let query: [UInt8] = Array("aa".utf8)
@@ -256,6 +271,7 @@ import Testing
     #expect(distance == 2)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func distanceJustAboveMaxEditDistanceReturnsNil() {
     // Three substitutions: "aaa" -> "bbb" with max 2
     let query: [UInt8] = Array("aaa".utf8)
@@ -274,6 +290,7 @@ import Testing
 
 // MARK: - Normalized Score Calculation
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreExactMatch() {
     let score = normalizedScore(
         editDistance: 0,
@@ -285,6 +302,7 @@ import Testing
     #expect(score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreDecreasesWithDistance() {
     // Use substringWeight of 1.0 to avoid capping at 1.0 for base score calculation
     let config = EditDistanceConfig(prefixWeight: 1.0)
@@ -298,6 +316,7 @@ import Testing
     #expect(score1 > score2)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreHandlesEmptyQuery() {
     let score = normalizedScore(
         editDistance: 0,
@@ -309,6 +328,7 @@ import Testing
     #expect(score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func normalizedScoreCappedAtOne() {
     // With high prefix weight, ensure score doesn't exceed 1.0
     let config = EditDistanceConfig(prefixWeight: 2.0)
@@ -324,6 +344,7 @@ import Testing
 
 // MARK: - Multiple Edit Operations
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func multipleInsertions() {
     // "hlo" -> "hello" (2 insertions)
     let query: [UInt8] = Array("hlo".utf8)
@@ -340,6 +361,7 @@ import Testing
     #expect(distance == 2)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func multipleDeletions() {
     // "hello" -> "hlo" (2 deletions)
     let query: [UInt8] = Array("hello".utf8)
@@ -356,6 +378,7 @@ import Testing
     #expect(distance == 2)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func mixedOperations() {
     // "kitten" -> "sitting"
     // In prefix edit distance, we find the best way to match query as prefix of candidate
@@ -379,10 +402,12 @@ import Testing
 }
 
 // MARK: - Edit Distance Symmetry
+
 //
 // Damerau-Levenshtein distance is symmetric: d(a,b) == d(b,a).
 // These tests verify that swapping query and candidate produces the same distance.
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetryIdenticalStrings() {
     let a: [UInt8] = Array("hello".utf8)
     let b: [UInt8] = Array("hello".utf8)
@@ -396,6 +421,7 @@ import Testing
     #expect(dBA == 0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetrySingleSubstitution() {
     let a: [UInt8] = Array("cat".utf8)
     let b: [UInt8] = Array("bat".utf8)
@@ -409,6 +435,7 @@ import Testing
     #expect(dAB == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetryTransposition() {
     let a: [UInt8] = Array("ab".utf8)
     let b: [UInt8] = Array("ba".utf8)
@@ -422,6 +449,7 @@ import Testing
     #expect(dAB == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetryDifferentLengthsSameLength() {
     // Prefix/substring distances are asymmetric by design for different-length strings.
     // True Damerau-Levenshtein symmetry holds for same-length strings.
@@ -438,6 +466,7 @@ import Testing
     #expect(dAB == 1)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetryMultipleEdits() {
     let a: [UInt8] = Array("kitten".utf8)
     let b: [UInt8] = Array("sittin".utf8)
@@ -451,6 +480,7 @@ import Testing
     #expect(dAB == dBA)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetryCompletelyDifferent() {
     let a: [UInt8] = Array("abc".utf8)
     let b: [UInt8] = Array("xyz".utf8)
@@ -464,6 +494,7 @@ import Testing
     #expect(dAB == 3)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetryEmptyVsNonEmpty() {
     let empty: [UInt8] = []
     let nonempty: [UInt8] = Array("abc".utf8)
@@ -481,6 +512,7 @@ import Testing
     #expect(dBA == 3)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func symmetryLongerStrings() {
     // Test with longer strings where the edit is in the middle
     let a: [UInt8] = Array("abcdefghijklmnop".utf8)
@@ -496,10 +528,12 @@ import Testing
 }
 
 // MARK: - Common Prefix/Suffix Handling
+
 //
 // Verifies that strings sharing a common prefix, suffix, or both produce correct
 // edit distances — the shared portion shouldn't affect the result.
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func commonPrefixOnlyDiffersAtEnd() {
     // "abcdef" vs "abcdxy" — share "abcd", differ at last 2
     let a: [UInt8] = Array("abcdef".utf8)
@@ -511,6 +545,7 @@ import Testing
     #expect(distance == 2) // 2 substitutions: e→x, f→y
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func commonSuffixOnlyDiffersAtStart() {
     // "xydefg" vs "abdefg" — share "defg" suffix
     let a: [UInt8] = Array("xydefg".utf8)
@@ -522,6 +557,7 @@ import Testing
     #expect(distance == 2) // 2 substitutions: x→a, y→b
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func commonPrefixAndSuffix() {
     // "abcXdef" vs "abcYdef" — share prefix "abc" and suffix "def", differ in middle
     let a: [UInt8] = Array("abcxdef".utf8)
@@ -533,6 +569,7 @@ import Testing
     #expect(distance == 1) // 1 substitution in the middle
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func entireStringIsCommonPrefix() {
     // "abc" is a prefix of "abcdef"
     let query: [UInt8] = Array("abc".utf8)
@@ -544,6 +581,7 @@ import Testing
     #expect(distance == 0) // exact prefix match
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func commonPrefixWithTransposition() {
     // "abcTSdef" vs "abcSTdef" — shared prefix "abc", transposition in middle, shared suffix "def"
     let a: [UInt8] = Array("abctsdef".utf8)
@@ -555,6 +593,7 @@ import Testing
     #expect(distance == 1) // transposition of "ts" → "st"
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func longCommonPrefixSingleEdit() {
     // 50-char shared prefix, then 1 edit
     let prefix = String(repeating: "a", count: 50)
@@ -569,6 +608,7 @@ import Testing
 
 // MARK: - Single-Character Query (Row-Minimum Pruning Regression)
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixEditDistanceSingleCharacterQuery() {
     // Regression: queryLen == 1 caused fatal error in row-minimum pruning
     // because `for j in 2...1` creates an invalid ClosedRange.
@@ -583,9 +623,10 @@ import Testing
         maxEditDistance: 1
     )
 
-    #expect(distance == 0)  // "w" is an exact prefix of "wisdom"
+    #expect(distance == 0) // "w" is an exact prefix of "wisdom"
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixEditDistanceSingleCharacterNoMatch() {
     let query: [UInt8] = Array("z".utf8)
     let candidate: [UInt8] = Array("wisdom".utf8)
@@ -598,9 +639,10 @@ import Testing
         maxEditDistance: 1
     )
 
-    #expect(distance == 1)  // substitution: z -> w
+    #expect(distance == 1) // substitution: z -> w
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func singleCharQueryThroughMatcher() {
     // End-to-end test: typing "w" should not crash when scoring against a corpus
     let matcher = FuzzyMatcher()
@@ -618,6 +660,7 @@ import Testing
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func twoCharQueryThroughMatcher() {
     // Typing "wi" should not crash
     let matcher = FuzzyMatcher()

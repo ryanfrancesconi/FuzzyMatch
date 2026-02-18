@@ -16,6 +16,7 @@ import Testing
 
 // MARK: - Buffer Shrink Policy Tests
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferGrowsForLargeInput() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -31,18 +32,19 @@ import Testing
     #expect(buffer.candidateStorage.bytes.count >= 300)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferShrinksAfterManySmallInputs() {
     var buffer = ScoringBuffer()
     // Set a small interval for testing
     buffer.shrinkCheckInterval = 10
 
     // First, grow the buffer with a large input
-    buffer.ensureCapacity(queryLength: 200, candidateLength: 1_000)
-    #expect(buffer.candidateStorage.bytes.count >= 1_000)
+    buffer.ensureCapacity(queryLength: 200, candidateLength: 1000)
+    #expect(buffer.candidateStorage.bytes.count >= 1000)
     #expect(buffer.editDistanceState.row.count >= 201)
 
     // Record usage of small inputs
-    for _ in 0..<10 {
+    for _ in 0 ..< 10 {
         buffer.recordUsage(queryLength: 5, candidateLength: 20)
     }
 
@@ -52,12 +54,13 @@ import Testing
     #expect(buffer.candidateStorage.bytes.count <= 128, "Candidate buffer should have shrunk. Actual: \(buffer.candidateStorage.bytes.count)")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferDoesNotShrinkWhenCapacityIsAppropriate() {
     var buffer = ScoringBuffer()
     buffer.shrinkCheckInterval = 10
 
     // Use inputs that match the default capacity (128 candidate, 64 query)
-    for _ in 0..<10 {
+    for _ in 0 ..< 10 {
         buffer.recordUsage(queryLength: 50, candidateLength: 100)
     }
 
@@ -65,6 +68,7 @@ import Testing
     #expect(buffer.candidateStorage.bytes.count == 128)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferShrinkDoesNotAffectCorrectness() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -79,7 +83,7 @@ import Testing
     #expect(result1 != nil)
 
     // Score many small candidates to trigger shrink
-    for _ in 0..<10 {
+    for _ in 0 ..< 10 {
         _ = matcher.score("test", against: query, buffer: &buffer)
     }
 
@@ -92,6 +96,7 @@ import Testing
     #expect(result3 != nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func highWaterMarkTracksMaximum() {
     var buffer = ScoringBuffer()
     buffer.shrinkCheckInterval = 100 // Won't trigger shrink during test
@@ -109,12 +114,13 @@ import Testing
     #expect(buffer.highWaterQueryLength == 20)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shrinkResetsTracking() {
     var buffer = ScoringBuffer()
     buffer.shrinkCheckInterval = 5
 
     // Record several usages
-    for _ in 0..<5 {
+    for _ in 0 ..< 5 {
         buffer.recordUsage(queryLength: 10, candidateLength: 50)
     }
 

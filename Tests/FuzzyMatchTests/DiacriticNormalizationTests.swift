@@ -16,6 +16,7 @@ import Testing
 
 // MARK: - Latin-1 Diacritic Normalization: Edit Distance Mode
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func uberMatchesUeberED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("uber")
@@ -26,6 +27,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cafeMatchesCafeED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("cafe")
@@ -36,6 +38,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func resumeMatchesResumeED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("resume")
@@ -46,6 +49,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func angstromMatchesAngstromED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("angstrom")
@@ -55,6 +59,7 @@ import Testing
     #expect(result!.score > 0.5)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func naiiveMatchesNaiveED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("naive")
@@ -67,6 +72,7 @@ import Testing
 
 // MARK: - Latin-1 Diacritic Normalization: Smith-Waterman Mode
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func uberMatchesUeberSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("uber")
@@ -77,6 +83,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cafeMatchesCafeSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("cafe")
@@ -87,6 +94,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func resumeMatchesResumeSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("resume")
@@ -99,6 +107,7 @@ import Testing
 
 // MARK: - Self-match with diacritics
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberSelfMatchED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("über")
@@ -109,6 +118,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberSelfMatchSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("über")
@@ -121,6 +131,7 @@ import Testing
 
 // MARK: - Diacritic query matches ASCII candidate
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberQueryMatchesAsciiUberED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("über")
@@ -131,6 +142,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberQueryMatchesAsciiUberSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("über")
@@ -143,6 +155,7 @@ import Testing
 
 // MARK: - Non-diacritic Latin-1 chars remain distinct
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func aeRemainsDistinct() {
     // æ (ligature) should NOT normalize to 'a' or 'ae'
     let matcher = FuzzyMatcher()
@@ -153,6 +166,7 @@ import Testing
     #expect(result == nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ethRemainsDistinct() {
     // ð (eth) should NOT normalize to 'd'
     let matcher = FuzzyMatcher()
@@ -162,6 +176,7 @@ import Testing
     #expect(result == nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func thornRemainsDistinct() {
     // þ (thorn) should NOT normalize to 't'
     let matcher = FuzzyMatcher()
@@ -171,6 +186,7 @@ import Testing
     #expect(result == nil)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func slashedORemainsDistinct() {
     // ø (slashed o) should NOT normalize to 'o'
     let matcher = FuzzyMatcher()
@@ -182,44 +198,46 @@ import Testing
 
 // MARK: - latin1ToASCII unit tests
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func latin1ToASCIIMappings() {
     // Verify all expected mappings
-    #expect(latin1ToASCII(0xA0) == 0x61)  // à → a
-    #expect(latin1ToASCII(0xA1) == 0x61)  // á → a
-    #expect(latin1ToASCII(0xA2) == 0x61)  // â → a
-    #expect(latin1ToASCII(0xA3) == 0x61)  // ã → a
-    #expect(latin1ToASCII(0xA4) == 0x61)  // ä → a
-    #expect(latin1ToASCII(0xA5) == 0x61)  // å → a
-    #expect(latin1ToASCII(0xA6) == 0)     // æ → no mapping
-    #expect(latin1ToASCII(0xA7) == 0x63)  // ç → c
-    #expect(latin1ToASCII(0xA8) == 0x65)  // è → e
-    #expect(latin1ToASCII(0xA9) == 0x65)  // é → e
-    #expect(latin1ToASCII(0xAA) == 0x65)  // ê → e
-    #expect(latin1ToASCII(0xAB) == 0x65)  // ë → e
-    #expect(latin1ToASCII(0xAC) == 0x69)  // ì → i
-    #expect(latin1ToASCII(0xAD) == 0x69)  // í → i
-    #expect(latin1ToASCII(0xAE) == 0x69)  // î → i
-    #expect(latin1ToASCII(0xAF) == 0x69)  // ï → i
-    #expect(latin1ToASCII(0xB0) == 0)     // ð → no mapping
-    #expect(latin1ToASCII(0xB1) == 0x6E)  // ñ → n
-    #expect(latin1ToASCII(0xB2) == 0x6F)  // ò → o
-    #expect(latin1ToASCII(0xB3) == 0x6F)  // ó → o
-    #expect(latin1ToASCII(0xB4) == 0x6F)  // ô → o
-    #expect(latin1ToASCII(0xB5) == 0x6F)  // õ → o
-    #expect(latin1ToASCII(0xB6) == 0x6F)  // ö → o
-    #expect(latin1ToASCII(0xB7) == 0)     // ÷ → no mapping
-    #expect(latin1ToASCII(0xB8) == 0)     // ø → no mapping
-    #expect(latin1ToASCII(0xB9) == 0x75)  // ù → u
-    #expect(latin1ToASCII(0xBA) == 0x75)  // ú → u
-    #expect(latin1ToASCII(0xBB) == 0x75)  // û → u
-    #expect(latin1ToASCII(0xBC) == 0x75)  // ü → u
-    #expect(latin1ToASCII(0xBD) == 0x79)  // ý → y
-    #expect(latin1ToASCII(0xBE) == 0)     // þ → no mapping
-    #expect(latin1ToASCII(0xBF) == 0x79)  // ÿ → y
+    #expect(latin1ToASCII(0xA0) == 0x61) // à → a
+    #expect(latin1ToASCII(0xA1) == 0x61) // á → a
+    #expect(latin1ToASCII(0xA2) == 0x61) // â → a
+    #expect(latin1ToASCII(0xA3) == 0x61) // ã → a
+    #expect(latin1ToASCII(0xA4) == 0x61) // ä → a
+    #expect(latin1ToASCII(0xA5) == 0x61) // å → a
+    #expect(latin1ToASCII(0xA6) == 0) // æ → no mapping
+    #expect(latin1ToASCII(0xA7) == 0x63) // ç → c
+    #expect(latin1ToASCII(0xA8) == 0x65) // è → e
+    #expect(latin1ToASCII(0xA9) == 0x65) // é → e
+    #expect(latin1ToASCII(0xAA) == 0x65) // ê → e
+    #expect(latin1ToASCII(0xAB) == 0x65) // ë → e
+    #expect(latin1ToASCII(0xAC) == 0x69) // ì → i
+    #expect(latin1ToASCII(0xAD) == 0x69) // í → i
+    #expect(latin1ToASCII(0xAE) == 0x69) // î → i
+    #expect(latin1ToASCII(0xAF) == 0x69) // ï → i
+    #expect(latin1ToASCII(0xB0) == 0) // ð → no mapping
+    #expect(latin1ToASCII(0xB1) == 0x6E) // ñ → n
+    #expect(latin1ToASCII(0xB2) == 0x6F) // ò → o
+    #expect(latin1ToASCII(0xB3) == 0x6F) // ó → o
+    #expect(latin1ToASCII(0xB4) == 0x6F) // ô → o
+    #expect(latin1ToASCII(0xB5) == 0x6F) // õ → o
+    #expect(latin1ToASCII(0xB6) == 0x6F) // ö → o
+    #expect(latin1ToASCII(0xB7) == 0) // ÷ → no mapping
+    #expect(latin1ToASCII(0xB8) == 0) // ø → no mapping
+    #expect(latin1ToASCII(0xB9) == 0x75) // ù → u
+    #expect(latin1ToASCII(0xBA) == 0x75) // ú → u
+    #expect(latin1ToASCII(0xBB) == 0x75) // û → u
+    #expect(latin1ToASCII(0xBC) == 0x75) // ü → u
+    #expect(latin1ToASCII(0xBD) == 0x79) // ý → y
+    #expect(latin1ToASCII(0xBE) == 0) // þ → no mapping
+    #expect(latin1ToASCII(0xBF) == 0x79) // ÿ → y
 }
 
 // MARK: - Bitmask prefilter with diacritics
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskUeberMatchesUber() {
     // "über" candidate should have 'u' bit set (not just multi-byte bit)
     let uberBytes = Array("über".utf8)
@@ -229,6 +247,7 @@ import Testing
     #expect(mask & uBit != 0, "über should have 'u' bit set in bitmask")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskCafeMatchesCafe() {
     let cafeBytes = Array("café".utf8)
     let (mask, _) = computeCharBitmaskWithASCIICheck(cafeBytes.span)
@@ -239,6 +258,7 @@ import Testing
 
 // MARK: - Compound diacritics in longer candidates
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func diacriticInLongerCandidateED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("uber")
@@ -249,6 +269,7 @@ import Testing
     #expect(result!.score > 0.3)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func diacriticInLongerCandidateSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("uber")
@@ -260,6 +281,7 @@ import Testing
 
 // MARK: - Multiple diacritics in one word
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func multipleDiacriticsED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("noel")
@@ -270,6 +292,7 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func allVowelDiacriticsED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("aeiou")

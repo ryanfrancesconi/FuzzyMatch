@@ -21,6 +21,7 @@ import Testing
 // candidates that should rank in a particular order.
 
 /// Helper to rank candidates by score (highest first).
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 private func rank(
     _ query: String,
     against candidates: [String],
@@ -39,6 +40,7 @@ private func rank(
 }
 
 /// Helper to verify that candidate A ranks higher than candidate B.
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 private func assertRanksHigher(
     query: String,
     higher: String,
@@ -58,6 +60,7 @@ private func assertRanksHigher(
 
 // MARK: - Abbreviation Matching
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func abbreviationGubiMatchesGetUserById() {
     // "gubi" matches "getUserById" via subsequence (g,U,B,I at word boundaries).
     // "debugging" does NOT match — g,u,b,i cannot be found in order, and with
@@ -67,28 +70,33 @@ private func assertRanksHigher(
     #expect(results[0].candidate == "getUserById")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func abbreviationFbPrefersFooBar() {
     assertRanksHigher(query: "fb", higher: "fooBar", lower: "fileBrowser")
 }
 
 // MARK: - Prefix Preference
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixGetPrefersGetUser() {
     assertRanksHigher(query: "get", higher: "getUser", lower: "targetGet")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixSetPrefersSetName() {
     assertRanksHigher(query: "set", higher: "setName", lower: "resetAll")
 }
 
 // MARK: - Consecutive Runs
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func consecutiveConfigPrefersConfiguration() {
     assertRanksHigher(query: "config", higher: "configuration", lower: "configurable_item")
 }
 
 // MARK: - Typo Tolerance
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func typoUsrMatchesUser() {
     let results = rank("usr", against: ["user", "usher", "ultraShort"])
     #expect(results.count >= 1)
@@ -98,6 +106,7 @@ private func assertRanksHigher(
 
 // MARK: - camelCase Matching
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func camelCaseSnPrefersSetName() {
     // "setna" at prefix of "setName" should rank higher than a non-boundary
     // substring match. Uses a 5-char query to avoid the short-query same-length
@@ -108,6 +117,7 @@ private func assertRanksHigher(
 
 // MARK: - fzfAligned Config Tests
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func fzfAlignedPresetExists() {
     let config = MatchConfig.fzfAligned
     #expect(config.editDistanceConfig!.wordBoundaryBonus == 0.12)
@@ -115,6 +125,7 @@ private func assertRanksHigher(
     #expect(config.editDistanceConfig!.maxEditDistance == 2)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func fzfAlignedAbbreviationRanking() {
     // "gubi" matches "getUserById" via subsequence (g,U,B,I at word boundaries).
     // "debugging" does NOT match — g,u,b,i can't be found in order, and
@@ -124,6 +135,7 @@ private func assertRanksHigher(
     #expect(results[0].candidate == "getUserById")
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func fzfAlignedPrefixRanking() {
     assertRanksHigher(
         query: "get",
@@ -133,6 +145,7 @@ private func assertRanksHigher(
     )
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func fzfAlignedConsecutiveRanking() {
     assertRanksHigher(
         query: "config",
@@ -144,6 +157,7 @@ private func assertRanksHigher(
 
 // MARK: - Trading Domain Ranking
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func tradingEquitySymbolSearch() {
     // Searching for "apple" should prefer the well-known equity name
     let results = rank("apple", against: [
@@ -157,6 +171,7 @@ private func assertRanksHigher(
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func tradingDottedSymbolSearch() {
     // Dotted symbols like "MSFT.OQ" should be findable
     let results = rank("msft", against: [
@@ -167,6 +182,7 @@ private func assertRanksHigher(
     #expect(results.count >= 2)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func tradingSlashedPairSearch() {
     // Slash-separated pairs like "EUR/USD" should be searchable
     let results = rank("eur", against: [
@@ -177,6 +193,7 @@ private func assertRanksHigher(
     #expect(results.count >= 2)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func tradingISharesGrouping() {
     // "ishares" should match iShares ETFs
     let results = rank("ishares", against: [
@@ -192,6 +209,7 @@ private func assertRanksHigher(
 
 // MARK: - Ranking Consistency
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func exactMatchScoresOne() {
     let results = rank("test", against: [
         "test",
@@ -204,6 +222,7 @@ private func assertRanksHigher(
     #expect(exactMatch?.score == 1.0)
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixMatchRanksAboveSubstring() {
     let results = rank("get", against: [
         "getUser",
@@ -215,6 +234,7 @@ private func assertRanksHigher(
 
 // MARK: - Short Query Tie-Breaking (Prefer Prefix Over Subsequence)
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQueryDNOPrefersExactOverSubsequence() {
     // "DNO" exact match should rank above "DAN O6 100..." subsequence match
     assertRanksHigher(
@@ -224,6 +244,7 @@ private func assertRanksHigher(
     )
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQueryTSLPrefersExactOverSubsequence() {
     // "TSL" exact match should rank above "TGS L6 140..." subsequence match
     assertRanksHigher(
@@ -233,6 +254,7 @@ private func assertRanksHigher(
     )
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQueryExactAlwaysBeatsSubsequenceInLongCandidate() {
     // Generic: a 3-char exact match must always outscore a subsequence
     // match in a 20+ char candidate
@@ -243,6 +265,7 @@ private func assertRanksHigher(
     )
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shorterCandidateWithSameMatchPreferred() {
     // When both are prefix matches, shorter candidate should score higher
     // (less "gap" after the match)
@@ -257,6 +280,7 @@ private func assertRanksHigher(
 
 // MARK: - Market Picker Ranking (pickerMatchConfig)
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func marketPickerXSTOvsSTOX() {
     // Reproduces market picker scenario: searching "xsto" should rank XSTO
     // (exact match) far above STOX (prefix edit distance 1: delete 'x' → "sto" matches prefix "sto" of "stox").
@@ -297,6 +321,7 @@ private func assertRanksHigher(
     }
 }
 
+@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func marketPickerXSTOvsSTOXUsingRankHelper() {
     // End-to-end ranking test using the rank helper, confirming XSTO sorts first
     let config = MatchConfig(algorithm: .editDistance(EditDistanceConfig(prefixWeight: 4.0, substringWeight: 0.5)))

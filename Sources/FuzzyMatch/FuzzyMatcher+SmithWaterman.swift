@@ -24,6 +24,7 @@ extension FuzzyMatcher {
     /// 5. Run Smith-Waterman DP
     /// 6. Normalize raw score to 0.0–1.0
     /// 7. Apply minScore threshold
+    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @inlinable
     internal func scoreSmithWatermanImpl(
         _ candidateUTF8: Span<UInt8>,
