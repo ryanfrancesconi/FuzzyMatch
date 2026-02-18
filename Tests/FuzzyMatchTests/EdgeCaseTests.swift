@@ -163,9 +163,11 @@ import Testing
     var buffer = matcher.makeBuffer()
 
     let result = try #require(
-        matcher.score("snare", against: query, buffer: &buffer)
+        matcher.score("snare_rolls_hits", against: query, buffer: &buffer)
     )
 
+    print(result)
+    
     #expect(result.score > 0.8)
 }
 
