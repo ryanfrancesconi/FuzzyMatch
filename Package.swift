@@ -6,7 +6,7 @@ let package = Package(
     name: "FuzzyMatch",
     platforms: [
         .macOS(.v14),
-        .iOS(.v26),
+        .iOS(.v17),
         .visionOS(.v26),
         .watchOS(.v26)
     ],
