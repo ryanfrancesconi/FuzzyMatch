@@ -17,15 +17,14 @@ import Testing
 // MARK: - Match Position Finding Tests
 
 struct ScoringBonusTests {
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func findMatchPositionsSimple() {
         let query = Array("abc".utf8)
         let candidate = Array("abc".utf8)
         var positions = [Int](repeating: 0, count: query.count)
 
         let count = findMatchPositions(
-            query: query.span,
-            candidate: candidate.span,
+            query: query.ubp,
+            candidate: candidate.ubp,
             boundaryMask: 0b1, // Only position 0 is boundary
             positions: &positions
         )
@@ -36,7 +35,6 @@ struct ScoringBonusTests {
         #expect(positions[2] == 2) // c
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func findMatchPositionsPrefersBoundaries() {
         // Query "gubi" in "getUserById" should prefer boundary positions
         let query = Array("gubi".lowercased().utf8)
@@ -44,11 +42,11 @@ struct ScoringBonusTests {
         var positions = [Int](repeating: 0, count: query.count)
 
         // Compute boundary mask for candidate
-        let boundaryMask = computeBoundaryMask(bytes: candidate.span)
+        let boundaryMask = computeBoundaryMask(bytes: candidate.ubp)
 
         let count = findMatchPositions(
-            query: query.span,
-            candidate: candidate.span,
+            query: query.ubp,
+            candidate: candidate.ubp,
             boundaryMask: boundaryMask,
             positions: &positions
         )
@@ -63,7 +61,6 @@ struct ScoringBonusTests {
         #expect(positions[0] == 0) // g at start
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func findMatchPositionsSubsequence() {
         // Query "fzy" in "fuzzy"
         let query = Array("fzy".utf8)
@@ -71,8 +68,8 @@ struct ScoringBonusTests {
         var positions = [Int](repeating: 0, count: query.count)
 
         let count = findMatchPositions(
-            query: query.span,
-            candidate: candidate.span,
+            query: query.ubp,
+            candidate: candidate.ubp,
             boundaryMask: 0b1, // Only position 0
             positions: &positions
         )
@@ -83,15 +80,14 @@ struct ScoringBonusTests {
         #expect(positions[2] == 4) // y
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func findMatchPositionsNoMatch() {
         let query = Array("xyz".utf8)
         let candidate = Array("abc".utf8)
         var positions = [Int](repeating: 0, count: query.count)
 
         let count = findMatchPositions(
-            query: query.span,
-            candidate: candidate.span,
+            query: query.ubp,
+            candidate: candidate.ubp,
             boundaryMask: 0b1,
             positions: &positions
         )
@@ -99,15 +95,14 @@ struct ScoringBonusTests {
         #expect(count == 0)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func findMatchPositionsEmpty() {
         let query: [UInt8] = []
         let candidate = Array("abc".utf8)
         var positions = [Int](repeating: 0, count: 1)
 
         let count = findMatchPositions(
-            query: query.span,
-            candidate: candidate.span,
+            query: query.ubp,
+            candidate: candidate.ubp,
             boundaryMask: 0b1,
             positions: &positions
         )
@@ -117,13 +112,12 @@ struct ScoringBonusTests {
 
     // MARK: - Bonus Calculation Tests
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func calculateBonusesAllBoundaries() {
         // All matches at boundaries: bonus = 4 * 0.1 = 0.4
         let positions = [0, 3, 7, 9] // All boundary positions
         let candidate = Array("getUserById".utf8)
 
-        let boundaryMask = computeBoundaryMask(bytes: candidate.span)
+        let boundaryMask = computeBoundaryMask(bytes: candidate.ubp)
 
         // Use linear gap model without position bonus
         let config = EditDistanceConfig(
@@ -136,7 +130,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -147,13 +141,12 @@ struct ScoringBonusTests {
         #expect(bonus < 0.4)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func calculateBonusesConsecutive() {
         // Consecutive matches: positions 0, 1, 2
         let positions = [0, 1, 2]
         let candidate = Array("abc".utf8)
 
-        let boundaryMask = computeBoundaryMask(bytes: candidate.span)
+        let boundaryMask = computeBoundaryMask(bytes: candidate.ubp)
 
         // Use linear gap model without position bonus
         let config = EditDistanceConfig(
@@ -166,7 +159,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -176,7 +169,6 @@ struct ScoringBonusTests {
         #expect(abs(bonus - 0.2) < 0.001)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func calculateBonusesWithGaps() {
         // Matches with gaps: positions 0, 5, 10
         let positions = [0, 5, 10]
@@ -195,7 +187,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -205,12 +197,11 @@ struct ScoringBonusTests {
         #expect(abs(bonus - 0.02) < 0.001)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func calculateBonusesNoBonusConfig() {
         let positions = [0, 3, 7, 9]
         let candidate = Array("getUserById".utf8)
 
-        let boundaryMask = computeBoundaryMask(bytes: candidate.span)
+        let boundaryMask = computeBoundaryMask(bytes: candidate.ubp)
 
         // All bonuses disabled
         let config = EditDistanceConfig(
@@ -223,7 +214,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -233,7 +224,6 @@ struct ScoringBonusTests {
 
     // MARK: - Integration Tests: Ranking Quality
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func gubiRanksGetUserByIdHigherThanDebugging() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("gubi")
@@ -251,7 +241,6 @@ struct ScoringBonusTests {
         #expect(debuggingScore == nil)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func fbRanksFooBarHigherThanFileBrowser() {
         // Test boundary scoring with gap penalty to differentiate by gap size
         // fooBar has smaller gap (2 chars) than file_browser (4 chars)
@@ -276,7 +265,6 @@ struct ScoringBonusTests {
         #expect(fooBarScore!.score > fileBrowserScore!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func exactPrefixRanksHighest() {
         // Use config without prefix boost to test that bonuses still help
         // With default bonuses, prefix matches should still rank higher
@@ -310,7 +298,6 @@ struct ScoringBonusTests {
         #expect(gatewayScore!.score >= navigateScore!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func consecutiveMatchesBeatScatteredMatches() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("abc")
@@ -326,7 +313,6 @@ struct ScoringBonusTests {
         #expect(consecutiveScore!.score > scatteredScore!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func wordBoundaryMatchesBeatMiddleMatches() {
         // Uses a 5-char query to avoid the short-query same-length ED restriction
         // (queries <= 4 chars only allow ED typos against same-length candidates,
@@ -349,7 +335,6 @@ struct ScoringBonusTests {
 
     // MARK: - Config Tests
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func bonusesCanBeDisabled() {
         let noBonusConfig = MatchConfig(
             algorithm: .editDistance(EditDistanceConfig(
@@ -368,7 +353,6 @@ struct ScoringBonusTests {
         #expect(result != nil)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func customBonusValues() {
         let customConfig = MatchConfig(
             algorithm: .editDistance(EditDistanceConfig(
@@ -389,7 +373,6 @@ struct ScoringBonusTests {
 
     // MARK: - First Match Position Bonus Tests
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func firstMatchBonusAtPositionZero() {
         // First match at position 0 should get full firstMatchBonus
         let positions = [0, 1, 2]
@@ -407,7 +390,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -416,7 +399,6 @@ struct ScoringBonusTests {
         #expect(abs(bonus - 0.15) < 0.001)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func firstMatchBonusMidRange() {
         // First match at position 5 should get 50% of firstMatchBonus (decay)
         let positions = [5, 6, 7]
@@ -434,7 +416,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -444,7 +426,6 @@ struct ScoringBonusTests {
         #expect(abs(bonus - 0.075) < 0.001)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func firstMatchBonusBeyondRange() {
         // First match at position 10 or beyond should get no firstMatchBonus
         let positions = [10, 11, 12]
@@ -462,7 +443,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -471,7 +452,6 @@ struct ScoringBonusTests {
         #expect(bonus == 0.0)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func firstMatchBonusDisabled() {
         // When firstMatchBonus is 0, no position bonus is applied
         let positions = [0, 1, 2]
@@ -489,7 +469,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -499,7 +479,6 @@ struct ScoringBonusTests {
 
     // MARK: - Affine Gap Penalty Tests
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func affineGapPenaltySingleCharGap() {
         // Gap of 1 character: only open penalty (no extension)
         let positions = [0, 2] // Gap of 1 at position 1
@@ -516,7 +495,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -525,7 +504,6 @@ struct ScoringBonusTests {
         #expect(abs(bonus - -0.03) < 0.001)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func affineGapPenaltyMultiCharGap() {
         // Gap of 3 characters
         let positions = [0, 4] // Gap of 3 at positions 1, 2, 3
@@ -542,7 +520,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -551,7 +529,6 @@ struct ScoringBonusTests {
         #expect(abs(bonus - -0.04) < 0.001)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func affineGapVsLinearGap() {
         // Compare affine and linear gap models for a gap of 3
         let positions = [0, 4] // Gap of 3
@@ -569,7 +546,7 @@ struct ScoringBonusTests {
         let linearBonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: linearConfig
         )
@@ -585,7 +562,7 @@ struct ScoringBonusTests {
         let affineBonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: affineConfig
         )
@@ -599,7 +576,6 @@ struct ScoringBonusTests {
         #expect(affineBonus < linearBonus)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func linearGapModel() {
         // Test linear gap model: each gap character costs the same
         let positions = [0, 5, 10]
@@ -616,7 +592,7 @@ struct ScoringBonusTests {
         let bonus = calculateBonuses(
             matchPositions: positions,
             positionCount: positions.count,
-            candidateBytes: candidate.span,
+            candidateBytes: candidate.ubp,
             boundaryMask: boundaryMask,
             config: config
         )
@@ -627,7 +603,6 @@ struct ScoringBonusTests {
 
     // MARK: - Integration Tests: Position Bonus Ranking
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func earlyMatchRanksHigherThanLateMatch() {
         // Test that first match position bonus affects ranking
         // Use candidates where matches are spread out (subsequence matches)
@@ -662,7 +637,6 @@ struct ScoringBonusTests {
         #expect(earlyScore!.score > lateScore!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func tighterMatchesBeatScatteredWithAffineGaps() {
         // With affine gaps, a slightly scattered match should beat a very scattered one
         // even more than with linear gaps.
@@ -690,7 +664,6 @@ struct ScoringBonusTests {
 
     // MARK: - Multi-Word Query Tests
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func multiWordQueryMatchesDescription() {
         // Test that short multi-word queries (3-10 chars) match labels/descriptions
         // User use case: "und is" should match "Underlying ISIN"
@@ -719,7 +692,6 @@ struct ScoringBonusTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func shortAbbreviationQueryMatchesDescription() {
         // Test abbreviation-style queries against descriptions
         let matcher = FuzzyMatcher()
@@ -740,7 +712,6 @@ struct ScoringBonusTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func multiWordQueryNotRejectedByTrigramFilter() {
         // Regression test: multi-word queries like "am lo ab" should not be
         // rejected by the trigram prefilter. Cross-word-boundary trigrams
@@ -756,7 +727,6 @@ struct ScoringBonusTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func queryWithSpacesMatchesCandidateWithSpaces() {
         // The space character in query should match space in candidate
         let matcher = FuzzyMatcher()
@@ -774,7 +744,6 @@ struct ScoringBonusTests {
 
     // MARK: - Whole-Word Substring Recovery Tests
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func wholeWordSubstringRecoveryAtEnd() {
         // "SRI" as standalone word at end of string should beat
         // "SRI" scattered mid-word in a shorter candidate
@@ -792,7 +761,6 @@ struct ScoringBonusTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func wholeWordSubstringRecoveryESG() {
         // "ESG" as standalone word in longer candidate should beat
         // "esg" embedded mid-word in "jfesg" (the real-world case from the plan)
@@ -810,7 +778,6 @@ struct ScoringBonusTests {
         #expect(wholeWord!.score > midWord!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func wholeWordSubstringRecoveryAsia() {
         // "Asia" as standalone word should beat "asia" embedded mid-word
         // Uses realistic candidate names from the instrument dataset
@@ -828,7 +795,6 @@ struct ScoringBonusTests {
         #expect(wholeWord!.score > midWord!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func noRecoveryForMidWordSubstring() {
         // Verify that mid-word substring does NOT get recovery
         let matcher = FuzzyMatcher()

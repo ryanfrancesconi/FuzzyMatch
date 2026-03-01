@@ -17,7 +17,6 @@ import Testing
 // MARK: - Main API Tests
 
 struct FuzzyMatcherTests {
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func prepareCreatesCorrectFuzzyQuery() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("Hello")
@@ -28,7 +27,6 @@ struct FuzzyMatcherTests {
         #expect(query.trigrams.count == 3) // "hel", "ell", "llo"
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func prepareStoresOriginalString() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("TestQuery")
@@ -36,7 +34,6 @@ struct FuzzyMatcherTests {
         #expect(query.original == "TestQuery")
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func prepareLowercasesBytes() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("ABC")
@@ -44,7 +41,6 @@ struct FuzzyMatcherTests {
         #expect(query.lowercased == [0x61, 0x62, 0x63]) // "abc"
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func prepareComputesCharBitmask() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("ab")
@@ -53,7 +49,6 @@ struct FuzzyMatcherTests {
         #expect(query.charBitmask == 0b11)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func prepareComputesTrigramsForLongStrings() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("abcd")
@@ -62,7 +57,6 @@ struct FuzzyMatcherTests {
         #expect(query.trigrams.count == 2)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func prepareSkipsTrigramsForShortStrings() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("ab")
@@ -70,7 +64,6 @@ struct FuzzyMatcherTests {
         #expect(query.trigrams.isEmpty)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func scoreReturnsCorrectResultsForVariousInputs() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("test")
@@ -90,7 +83,6 @@ struct FuzzyMatcherTests {
         #expect(substringResult != nil)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func exactMatchReturnsScoreOneAndExactKind() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("hello")
@@ -103,7 +95,6 @@ struct FuzzyMatcherTests {
         #expect(result?.kind == .exact)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func prefixMatchWorksCorrectly() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("test")
@@ -116,7 +107,6 @@ struct FuzzyMatcherTests {
         #expect(result!.score > 0.0)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func substringMatchWorksCorrectly() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("test")
@@ -128,7 +118,6 @@ struct FuzzyMatcherTests {
         #expect(result!.score > 0.0)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func bufferReuseProducesCorrectResults() {
         let matcher = FuzzyMatcher()
         var buffer = matcher.makeBuffer()
@@ -146,7 +135,6 @@ struct FuzzyMatcherTests {
         #expect(result3?.score == 1.0)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func bufferReuseWithDifferentSizes() {
         let matcher = FuzzyMatcher()
         var buffer = matcher.makeBuffer()
@@ -165,7 +153,6 @@ struct FuzzyMatcherTests {
 
     // MARK: - Scoring Tests
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func scoreHigherForBetterMatches() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("test")
@@ -179,7 +166,6 @@ struct FuzzyMatcherTests {
         #expect(exactScore >= prefixScore)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test func scoreBetweenZeroAndOne() {
         let matcher = FuzzyMatcher()
         let query = matcher.prepare("hello")

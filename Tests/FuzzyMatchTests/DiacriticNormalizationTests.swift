@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Latin-1 Diacritic Normalization: Edit Distance Mode
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func uberMatchesUeberED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("uber")
@@ -27,7 +26,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cafeMatchesCafeED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("cafe")
@@ -38,7 +36,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func resumeMatchesResumeED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("resume")
@@ -49,7 +46,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func angstromMatchesAngstromED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("angstrom")
@@ -59,7 +55,6 @@ import Testing
     #expect(result!.score > 0.5)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func naiiveMatchesNaiveED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("naive")
@@ -72,7 +67,6 @@ import Testing
 
 // MARK: - Latin-1 Diacritic Normalization: Smith-Waterman Mode
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func uberMatchesUeberSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("uber")
@@ -83,7 +77,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cafeMatchesCafeSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("cafe")
@@ -94,7 +87,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func resumeMatchesResumeSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("resume")
@@ -107,7 +99,6 @@ import Testing
 
 // MARK: - Self-match with diacritics
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberSelfMatchED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("über")
@@ -118,7 +109,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberSelfMatchSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("über")
@@ -131,7 +121,6 @@ import Testing
 
 // MARK: - Diacritic query matches ASCII candidate
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberQueryMatchesAsciiUberED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("über")
@@ -142,7 +131,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ueberQueryMatchesAsciiUberSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("über")
@@ -155,7 +143,6 @@ import Testing
 
 // MARK: - Non-diacritic Latin-1 chars remain distinct
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func aeRemainsDistinct() {
     // æ (ligature) should NOT normalize to 'a' or 'ae'
     let matcher = FuzzyMatcher()
@@ -166,7 +153,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func ethRemainsDistinct() {
     // ð (eth) should NOT normalize to 'd'
     let matcher = FuzzyMatcher()
@@ -176,7 +162,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func thornRemainsDistinct() {
     // þ (thorn) should NOT normalize to 't'
     let matcher = FuzzyMatcher()
@@ -186,7 +171,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func slashedORemainsDistinct() {
     // ø (slashed o) should NOT normalize to 'o'
     let matcher = FuzzyMatcher()
@@ -198,7 +182,6 @@ import Testing
 
 // MARK: - latin1ToASCII unit tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func latin1ToASCIIMappings() {
     // Verify all expected mappings
     #expect(latin1ToASCII(0xA0) == 0x61) // à → a
@@ -237,20 +220,18 @@ import Testing
 
 // MARK: - Bitmask prefilter with diacritics
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskUeberMatchesUber() {
     // "über" candidate should have 'u' bit set (not just multi-byte bit)
     let uberBytes = Array("über".utf8)
-    let (mask, _) = computeCharBitmaskWithASCIICheck(uberBytes.span)
+    let (mask, _) = computeCharBitmaskWithASCIICheck(uberBytes.ubp)
     // 'u' is bit 20 (0x75 - 0x61 = 20)
     let uBit: UInt64 = 1 << 20
     #expect(mask & uBit != 0, "über should have 'u' bit set in bitmask")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bitmaskCafeMatchesCafe() {
     let cafeBytes = Array("café".utf8)
-    let (mask, _) = computeCharBitmaskWithASCIICheck(cafeBytes.span)
+    let (mask, _) = computeCharBitmaskWithASCIICheck(cafeBytes.ubp)
     // 'e' is bit 4 (0x65 - 0x61 = 4)
     let eBit: UInt64 = 1 << 4
     #expect(mask & eBit != 0, "café should have 'e' bit set in bitmask")
@@ -258,7 +239,6 @@ import Testing
 
 // MARK: - Compound diacritics in longer candidates
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func diacriticInLongerCandidateED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("uber")
@@ -269,7 +249,6 @@ import Testing
     #expect(result!.score > 0.3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func diacriticInLongerCandidateSW() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("uber")
@@ -281,7 +260,6 @@ import Testing
 
 // MARK: - Multiple diacritics in one word
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func multipleDiacriticsED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("noel")
@@ -292,7 +270,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func allVowelDiacriticsED() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("aeiou")

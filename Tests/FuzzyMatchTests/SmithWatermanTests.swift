@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Basic Scoring
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swExactMatch() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("user")
@@ -29,7 +28,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swExactMatchCaseInsensitive() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("user")
@@ -42,7 +40,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swNoMatchMissingCharacter() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("xyz")
@@ -53,7 +50,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swEmptyQuery() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("")
@@ -66,7 +62,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swEmptyCandidate() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("abc")
@@ -79,7 +74,6 @@ import Testing
 
 // MARK: - Score Normalization
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swScoreInZeroToOneRange() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("get")
@@ -96,7 +90,6 @@ import Testing
 
 // MARK: - Match Kind
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAlignmentMatchKind() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     // Use a query longer than word count so acronym fallback doesn't fire
@@ -109,7 +102,6 @@ import Testing
     #expect(result?.kind == .alignment)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swExactMatchKindForPerfectMatch() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("hello")
@@ -124,7 +116,6 @@ import Testing
 
 // MARK: - Boundary and CamelCase Bonuses
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swBoundaryMatchScoresHigher() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("gu")
@@ -141,7 +132,6 @@ import Testing
             "Boundary match should score higher")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swCamelCaseTransitionBonus() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("gb")
@@ -156,7 +146,6 @@ import Testing
 
 // MARK: - Consecutive Bonus
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConsecutiveMatchScoresHigher() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("abc")
@@ -175,7 +164,6 @@ import Testing
 
 // MARK: - Gap Penalties
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swLargerGapReducesScore() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("ac")
@@ -192,7 +180,6 @@ import Testing
 
 // MARK: - First Char Multiplier
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swFirstCharBonusMultiplied() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("g")
@@ -207,7 +194,6 @@ import Testing
 
 // MARK: - Prefilter Integration
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swBitmaskPrefilterRejectsMissingChars() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("xyz")
@@ -219,7 +205,6 @@ import Testing
     #expect(result == nil, "Missing characters should be rejected by bitmask prefilter")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swPartialCharOverlapRejects() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("abz")
@@ -233,7 +218,6 @@ import Testing
 
 // MARK: - Buffer Reuse
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swBufferReuseProducesConsistentResults() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("get")
@@ -248,7 +232,6 @@ import Testing
             "Reusing buffer should produce identical results")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swBufferReuseAcrossDifferentCandidates() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("user")
@@ -276,7 +259,6 @@ import Testing
 
 // MARK: - MinScore Threshold
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMinScoreFilters() {
     let config = MatchConfig(minScore: 0.8, algorithm: .smithWaterman())
     let matcher = FuzzyMatcher(config: config)
@@ -294,7 +276,6 @@ import Testing
 
 // MARK: - Ranking Quality
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swPrefixMatchRanksHigher() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("get")
@@ -310,7 +291,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swCamelCaseAbbreviationRanking() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("gubi")
@@ -327,7 +307,6 @@ import Testing
             "\"gubi\" with acronym match should score higher than scattered SW match")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swShorterCandidateDoesNotOverpenalize() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("user")
@@ -344,7 +323,6 @@ import Testing
 
 // MARK: - Backward Compatibility
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swEditDistanceDefaultUnchanged() {
     // Default matcher should still use edit distance
     let matcher = FuzzyMatcher()
@@ -360,7 +338,6 @@ import Testing
 
 // MARK: - Convenience API
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConvenienceScore() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
 
@@ -370,7 +347,6 @@ import Testing
     #expect(result!.score > 0.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swTopMatches() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("get")
@@ -385,7 +361,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMatchesAll() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("user")
@@ -402,7 +377,6 @@ import Testing
 
 // MARK: - Custom Config
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swCustomScoringConfig() {
     let customSW = SmithWatermanConfig(
         scoreMatch: 20,
@@ -427,7 +401,6 @@ import Testing
 
 // MARK: - Single Character Query
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swSingleCharQuery() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("g")
@@ -440,7 +413,6 @@ import Testing
     #expect(result!.score <= 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swSingleCharExactMatch() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("a")
@@ -455,7 +427,6 @@ import Testing
 
 // MARK: - Long Strings
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swLongCandidate() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("abc")
@@ -470,7 +441,6 @@ import Testing
 
 // MARK: - Preset Config
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swPresetConfig() {
     let config = MatchConfig.smithWaterman
     #expect(config.smithWatermanConfig != nil)
@@ -479,7 +449,6 @@ import Testing
 
 // MARK: - Multi-Word Queries
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordBasicMatch() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("johnson johnson")
@@ -492,7 +461,6 @@ import Testing
     #expect(result?.kind == .alignment)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordTypoMatch() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("johsnon johnson")
@@ -504,7 +472,6 @@ import Testing
     #expect(result!.score > 0.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordANDSemantics() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("apple banana")
@@ -515,7 +482,6 @@ import Testing
     #expect(result == nil, "Should return nil when second word is not found")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordANDSemanticsBothMissing() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("xyz abc")
@@ -526,7 +492,6 @@ import Testing
     #expect(result == nil, "Should return nil when no words match")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swSingleWordUnchanged() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let querySingle = matcher.prepare("johnson")
@@ -540,7 +505,6 @@ import Testing
     #expect(querySingle.atoms.isEmpty, "Single-word query should have no atoms")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordLeadingTrailingSpaces() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("  johnson  johnson  ")
@@ -552,7 +516,6 @@ import Testing
     #expect(query.atoms.count == 2, "Should produce exactly 2 atoms")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordBufferReuse() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("johnson johnson")
@@ -566,7 +529,6 @@ import Testing
     #expect(first!.score == second!.score, "Buffer reuse should produce identical results")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordScoreRange() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("procter gamble")
@@ -579,7 +541,6 @@ import Testing
     #expect(result!.score <= 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiWordAtomsProperty() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("foo bar baz")
@@ -587,7 +548,6 @@ import Testing
     #expect(query.atoms.count == 3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swNonSWMultiWordNoAtoms() {
     // Edit distance mode should not create atoms even with spaces
     let matcher = FuzzyMatcher()
@@ -596,7 +556,6 @@ import Testing
     #expect(query.atoms.isEmpty, "Non-SW mode should not split into atoms")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swSplitSpacesDisabled() {
     let config = MatchConfig(
         algorithm: .smithWaterman(SmithWatermanConfig(splitSpaces: false))
@@ -609,7 +568,6 @@ import Testing
 
 // MARK: - Acronym Fallback in SW Mode
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymMatchesBristolMyersSquibb() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("bms")
@@ -622,7 +580,6 @@ import Testing
     #expect(result!.score >= 0.3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymMatchesGeneralMotors() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("gmc")
@@ -634,7 +591,6 @@ import Testing
     #expect(result?.kind == .acronym)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymMatchesGeneralDynamics() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("gdc")
@@ -646,7 +602,6 @@ import Testing
     #expect(result?.kind == .acronym)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymMatchesJohnsonAndJohnson() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("jnj")
@@ -660,7 +615,6 @@ import Testing
     #expect(result?.kind == .alignment)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymBeatsScatteredSWMatch() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("bms")
@@ -677,7 +631,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymDoesNotFireForLongQueries() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("longquery1") // 10 chars, > 8
@@ -692,7 +645,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymBufferReuse() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("bms")
@@ -707,7 +659,6 @@ import Testing
     #expect(first!.kind == second!.kind)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymTakesMaxWithSW() {
     // When SW also matches, the higher score should win
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -722,7 +673,6 @@ import Testing
 
 // MARK: - A. Direct DP State Verification
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDPSingleCharMatch() {
     // "a" vs "a" with position-0 whitespace bonus (10)
     // Expected: scoreMatch + posBonus * firstCharMultiplier = 16 + 10*2 = 36
@@ -732,9 +682,9 @@ import Testing
     var state = SmithWatermanState(maxQueryLength: 1)
 
     let result = smithWatermanScore(
-        query: queryBytes.span,
-        candidate: candidateBytes.span,
-        bonus: bonusValues.span,
+        query: queryBytes.ubp,
+        candidate: candidateBytes.ubp,
+        bonus: bonusValues.ubp,
         state: &state,
         config: .default
     )
@@ -742,7 +692,6 @@ import Testing
     #expect(result == 36, "Single char match: 16 + 10*2 = 36")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDPTwoCharConsecutive() {
     // "ab" vs "ab" with bonuses [10, 0]
     // 'a' at j=0: 16 + 10*2 = 36, bonus carried = 10
@@ -754,9 +703,9 @@ import Testing
     var state = SmithWatermanState(maxQueryLength: 2)
 
     let result = smithWatermanScore(
-        query: queryBytes.span,
-        candidate: candidateBytes.span,
-        bonus: bonusValues.span,
+        query: queryBytes.ubp,
+        candidate: candidateBytes.ubp,
+        bonus: bonusValues.ubp,
         state: &state,
         config: .default
     )
@@ -764,7 +713,6 @@ import Testing
     #expect(result == 62, "Two consecutive chars: 36 + 16 + 10 = 62")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDPDiagonalCarry() {
     // "ab" vs "xab" with bonuses [10, 0, 0]
     // 'a' matches at position 1 (posBonus=0): 16 + 0*2 = 16
@@ -776,9 +724,9 @@ import Testing
     var state = SmithWatermanState(maxQueryLength: 2)
 
     let result = smithWatermanScore(
-        query: queryBytes.span,
-        candidate: candidateBytes.span,
-        bonus: bonusValues.span,
+        query: queryBytes.ubp,
+        candidate: candidateBytes.ubp,
+        bonus: bonusValues.ubp,
         state: &state,
         config: .default
     )
@@ -786,7 +734,6 @@ import Testing
     #expect(result == 36, "Diagonal carry: match starts at position 1, 16 + 16 + 4 = 36")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDPNoMatch() {
     // "a" vs "xxx" — no character matches, score should be 0
     let queryBytes: [UInt8] = [0x61]
@@ -795,9 +742,9 @@ import Testing
     var state = SmithWatermanState(maxQueryLength: 1)
 
     let result = smithWatermanScore(
-        query: queryBytes.span,
-        candidate: candidateBytes.span,
-        bonus: bonusValues.span,
+        query: queryBytes.ubp,
+        candidate: candidateBytes.ubp,
+        bonus: bonusValues.ubp,
         state: &state,
         config: .default
     )
@@ -805,7 +752,6 @@ import Testing
     #expect(result == 0, "No match should return 0")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDPBestFromLastColumn() {
     // "ab" vs "abab" with bonuses [10, 0, 0, 0]
     // Best match comes from first "ab" pair: 36 + 16 + 10 = 62
@@ -816,9 +762,9 @@ import Testing
     var state = SmithWatermanState(maxQueryLength: 2)
 
     let result = smithWatermanScore(
-        query: queryBytes.span,
-        candidate: candidateBytes.span,
-        bonus: bonusValues.span,
+        query: queryBytes.ubp,
+        candidate: candidateBytes.ubp,
+        bonus: bonusValues.ubp,
         state: &state,
         config: .default
     )
@@ -828,7 +774,6 @@ import Testing
 
 // MARK: - B. Multi-Byte Character Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swLatinExtendedCaseFolding() {
     // "café" should match "CAFÉ" via SW (Latin-1 Supplement: é/É)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -842,7 +787,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swGreekCaseFolding() {
     // "σπ" should match "ΣΠ" (Σ→σ via CE A3→CF 83, Π→π via CE A0→CF 80)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -856,7 +800,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swCyrillicCaseFolding() {
     // "бд" should match "БД" (Б→б via D0 91→D0 B1, Д→д via D0 94→D0 B4)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -870,7 +813,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMultiByteBonusTierDirect() {
     let sw = SmithWatermanConfig.default
     let boundary = Int32(sw.bonusBoundary)
@@ -918,7 +860,6 @@ import Testing
     ) == boundary)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMixedASCIIAndMultiByte() {
     // "café" matched against "CAFÉ" — mixed ASCII and Latin-1 Supplement
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -933,7 +874,6 @@ import Testing
 
 // MARK: - C. Score Normalization Verification
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swNormalizationLen1() {
     // maxScore = queryLen × scoreMatch + bonusBoundaryWhitespace × (firstCharMultiplier + queryLen - 1)
     // = 1*16 + 10*(2+1-1) = 16 + 20 = 36
@@ -943,7 +883,6 @@ import Testing
     #expect(query.maxSmithWatermanScore == 36)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swNormalizationLen3() {
     // = 3*16 + 10*(2+3-1) = 48 + 40 = 88
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -952,7 +891,6 @@ import Testing
     #expect(query.maxSmithWatermanScore == 88)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swNormalizationLen8() {
     // = 8*16 + 10*(2+8-1) = 128 + 90 = 218
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -961,7 +899,6 @@ import Testing
     #expect(query.maxSmithWatermanScore == 218)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swNormalizationClamped() {
     // Verify score is always in [0.0, 1.0] even with extreme config
     let extreme = SmithWatermanConfig(
@@ -990,7 +927,6 @@ import Testing
 
 // MARK: - D. Delimiter/Boundary Classification
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDelimiterSlash() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("b")
@@ -1005,7 +941,6 @@ import Testing
             "After '/' delimiter should score higher than mid-word")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDelimiterColon() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("b")
@@ -1020,7 +955,6 @@ import Testing
             "After ':' delimiter should score higher than mid-word")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swDelimiterSemicolonPipe() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("b")
@@ -1039,7 +973,6 @@ import Testing
             "After '|' delimiter should score higher than mid-word")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swPosition0WhitespaceBonus() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("a")
@@ -1054,7 +987,6 @@ import Testing
             "Position 0 (whitespace bonus) should score higher")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAfterSpaceBonus() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("b")
@@ -1069,7 +1001,6 @@ import Testing
             "After space should score higher than mid-word")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swNonDigitToDigitBonus() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("3")
@@ -1088,7 +1019,6 @@ import Testing
 
 // MARK: - E. Config Parameter Isolation
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConfigScoreMatchIsolation() {
     let low = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -1120,7 +1050,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConfigGapStartIsolation() {
     let low = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -1145,7 +1074,6 @@ import Testing
             "Higher penaltyGapStart should reduce score for gapped match")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConfigGapExtendIsolation() {
     let low = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -1171,7 +1099,6 @@ import Testing
             "Higher penaltyGapExtend should reduce score for long gaps")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConfigConsecutiveIsolation() {
     let low = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -1196,7 +1123,6 @@ import Testing
             "Higher bonusConsecutive should increase score for consecutive matches")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConfigBoundaryIsolation() {
     let low = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -1222,7 +1148,6 @@ import Testing
             "Higher bonusBoundary should increase score for boundary matches")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConfigCamelCaseIsolation() {
     let low = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -1248,7 +1173,6 @@ import Testing
             "Higher bonusCamelCase should increase score for camelCase matches")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swConfigFirstCharMultiplierIsolation() {
     let low = FuzzyMatcher(config: MatchConfig(
         minScore: 0.0,
@@ -1279,7 +1203,6 @@ import Testing
 
 // MARK: - F. Acronym Fallback Boundaries
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymLen2Minimum() {
     // 2-char query against 3+ word candidate → acronym should fire
     // Use long words so SW gap penalties make alignment score lose to acronym
@@ -1296,7 +1219,6 @@ import Testing
     #expect(result?.kind == .acronym, "2-char query with 3+ words should fire acronym")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymLen8Maximum() {
     // 8-char query against 9 word candidate → acronym should fire
     // Words must be short enough that 8+ boundaries fit in the first 64 chars
@@ -1314,7 +1236,6 @@ import Testing
     #expect(result?.kind == .acronym, "8-char query with 8+ words should fire acronym")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymLen9NoFire() {
     // 9-char query → should NOT produce .acronym (max is 8)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -1331,7 +1252,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymLen1NoFire() {
     // 1-char query → should NOT produce .acronym (min is 2)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -1345,7 +1265,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronymExactly3Words() {
     // 3-char query, exactly 3 words → acronym should fire (minimum word count)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -1358,7 +1277,6 @@ import Testing
     #expect(result?.kind == .acronym, "3-char query with exactly 3 words should fire acronym")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swAcronym2WordsNoFire() {
     // 2-char query, 2 words → should NOT fire acronym (needs wordCount >= 3)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -1375,7 +1293,6 @@ import Testing
 
 // MARK: - G. Additional Edge Cases
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swBothEmpty() {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("")
@@ -1388,7 +1305,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swQueryLongerThanCandidate() {
     // Long query, short candidate — bitmask should reject (tolerance 0)
     let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -1400,7 +1316,6 @@ import Testing
     #expect(result == nil, "Query much longer than candidate should be rejected by bitmask prefilter")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func swMinScoreBoundary() {
     let config = MatchConfig(minScore: 0.9, algorithm: .smithWaterman())
     let matcher = FuzzyMatcher(config: config)

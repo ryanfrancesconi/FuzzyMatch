@@ -99,7 +99,6 @@ private let candidates: [String] = [
     "Johnson & Johnson", "Johnson Controls International", "JPMorgan Chase"
 ]
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func concurrentEditDistanceMatchingIsConsistent() async {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("apple")
@@ -151,7 +150,6 @@ private let candidates: [String] = [
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func concurrentSmithWatermanMatchingIsConsistent() async {
     let matcher = FuzzyMatcher(config: .smithWaterman)
     let query = matcher.prepare("bristol myers")
@@ -202,7 +200,6 @@ private let candidates: [String] = [
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func concurrentMixedModeMatchingIsConsistent() async {
     // Both modes processing the same data concurrently
     let edMatcher = FuzzyMatcher()

@@ -25,7 +25,6 @@ import Testing
 //   4 chars → 1,  5 chars → 2,  6 chars → 2
 
 /// Helper to score a query against a candidate with an optional config.
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 private func score(
     _ query: String,
     against candidate: String,
@@ -38,7 +37,6 @@ private func score(
 }
 
 /// Helper to rank candidates by score (highest first), returning all matches.
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 private func rank(
     _ query: String,
     against candidates: [String],
@@ -58,7 +56,6 @@ private func rank(
 
 // MARK: - Effective maxEditDistance Progression
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func effectiveMaxEditDistance_1char() {
     // 1 char: max(1, (1-1)/2) = max(1, 0) = 1 → allows 1 edit
     let exact = score("c", against: "c")
@@ -70,7 +67,6 @@ private func rank(
     #expect(prefix != nil, "'c' should match 'cat' as prefix")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func effectiveMaxEditDistance_2chars() {
     // 2 chars: max(1, (2-1)/2) = max(1, 0) = 1 → allows 1 edit
     let exact = score("co", against: "co")
@@ -81,7 +77,6 @@ private func rank(
     #expect(oneEdit != nil, "'co' should match 'oc' with 1 transposition")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func effectiveMaxEditDistance_3chars() {
     // 3 chars: max(1, (3-1)/2) = max(1, 1) = 1 → allows 1 edit
     let exact = score("cov", against: "cov")
@@ -100,7 +95,6 @@ private func rank(
     #expect(threeEdits == nil, "'cov' should NOT match 'xyz' (3 edits)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func effectiveMaxEditDistance_4chars_staysAt1() {
     // 4 chars: max(1, (4-1)/2) = max(1, 1) = 1 → allows only 1 edit
     // This is the key fix: was previously 2, now 1
@@ -118,7 +112,6 @@ private func rank(
     #expect(twoEdits == nil, "'cove' should NOT match 'voce' with 2 edits (maxEdit=1 at 4 chars)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func effectiveMaxEditDistance_5chars_jumpsTo2() {
     // 5 chars: max(1, (5-1)/2) = max(1, 2) = 2 → allows 2 edits
     let exact = score("coves", against: "coves")
@@ -130,7 +123,6 @@ private func rank(
     #expect(twoEdits != nil, "'coves' should match 'voces' with 2 edits (maxEdit=2 at 5 chars)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func effectiveMaxEditDistance_6chars() {
     // 6 chars: max(1, (6-1)/2) = max(1, 2) = 2 → allows 2 edits
     let exact = score("covest", against: "covest")
@@ -143,7 +135,6 @@ private func rank(
 
 // MARK: - Realistic Instrument Search Scenarios
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func covestroProgressiveSearch_prefixMatchesThroughout() {
     // Simulates a user progressively typing "covestro" — every prefix should
     // match the candidate "Covestro AG" as a prefix match
@@ -158,7 +149,6 @@ private func rank(
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func coveQuery_prefersCovestroOverNoise() {
     // "cove" should rank "Covestro AG" highly, above unrelated strings
     // that might accidentally fuzzy-match
@@ -177,7 +167,6 @@ private func rank(
     #expect(covestro?.score ?? 0 > 0.8, "'cove' should score highly against 'Covestro AG'")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func covQuery_matchesSymbolAndName() {
     // "cov" should match both symbols like "COV" and names like "Covestro"
     let results = rank("cov", against: [
@@ -193,7 +182,6 @@ private func rank(
     #expect(results[0].candidate == "COV")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func fourCharQuery_rejectsHighEditDistanceCandidates() {
     // With the fix, 4-char queries only allow 1 edit
     // Note: char bitmask prefilter allows up to maxEditDistance missing char types
@@ -207,7 +195,6 @@ private func rank(
     #expect(twoEdits == nil, "'cove' should NOT match 'voce' (2 edits, maxEdit=1 at 4 chars)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func fiveCharQuery_acceptsTwoEditCandidates() {
     // At 5 chars, maxEdit goes to 2, so 2-edit candidates should match
     // "coves" → "voces" needs 2 edits and all chars c,o,v,e,s are present
@@ -217,7 +204,6 @@ private func rank(
 
 // MARK: - Picker Config (Strong Prefix Preference)
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func pickerConfig_prefixDominatesForShortQueries() {
     // With picker config (prefixWeight: 4.0, substringWeight: 0.5),
     // prefix matches should strongly dominate
@@ -237,7 +223,6 @@ private func rank(
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func pickerConfig_coveStillMatchesCovestro() {
     let pickerConfig = MatchConfig(algorithm: .editDistance(EditDistanceConfig(prefixWeight: 4.0, substringWeight: 0.5)))
     let result = score("cove", against: "Covestro AG", config: pickerConfig)
@@ -247,7 +232,6 @@ private func rank(
 
 // MARK: - Base58/Identifier Matching Behavior
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery_doesNotOvermatchRandomStrings() {
     // Short queries should not produce high scores against random-looking
     // strings (simulating base58 identifiers)
@@ -278,7 +262,6 @@ private func rank(
 // rank well above subsequence matches in long strings (e.g., base58 IDs).
 // Exact matches (distance = 0) at any candidate length are unaffected.
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery3_typoMatchesSameLength() {
     // "UDS" → "USD" is ED=1, both 3 chars → allowed and boosted
     let result = score("UDS", against: "USD")
@@ -286,35 +269,30 @@ private func rank(
     #expect(result! > 0.9, "'UDS' → 'USD' should score > 0.9 with same-length boost (got \(result!))")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery3_typoRejectsLonger() {
     // "UDS" vs "USD Fund" — ED=1 but 3 != 8 → blocked
     let result = score("UDS", against: "USD Fund")
     #expect(result == nil, "'UDS' should NOT match 'USD Fund' (3 != 8, typo blocked)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery3_typoRejectsSlightlyLonger() {
     // "UDS" vs "USDA" — ED=1 but 3 != 4 → blocked
     let result = score("UDS", against: "USDA")
     #expect(result == nil, "'UDS' should NOT match 'USDA' (3 != 4, typo blocked)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery3_exactPrefixStillWorks() {
     // "USD" vs "USD Fund" — ED=0, unaffected by restriction
     let result = score("USD", against: "USD Fund")
     #expect(result != nil, "'USD' should match 'USD Fund' (exact prefix, ED=0)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery3_exactSubstringStillWorks() {
     // "USD" vs "EUR/USD" — ED=0, unaffected by restriction
     let result = score("USD", against: "EUR/USD")
     #expect(result != nil, "'USD' should match 'EUR/USD' (exact substring, ED=0)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery4_notRestricted() {
     // 4-char queries are NOT subject to the same-length restriction
     let result = score("APEL", against: "AAPL")
@@ -325,7 +303,6 @@ private func rank(
     #expect(longer != nil, "'APEL' should match 'AAPL Inc' (4 chars, no restriction)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery2_typoMatchesSameLength() {
     // "co" → "oc" is ED=1, both 2 chars → allowed and boosted
     let result = score("co", against: "oc")
@@ -333,34 +310,29 @@ private func rank(
     #expect(result! > 0.85, "'co' → 'oc' should score > 0.85 with boost (got \(result!))")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery2_typoRejectsLonger() {
     let result = score("oc", against: "XYZ")
     #expect(result == nil, "'oc' should NOT match 'XYZ' (no char overlap)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery5_notRestricted() {
     // 5-char queries are NOT subject to the same-length restriction
     let result = score("coves", against: "voces")
     #expect(result != nil, "'coves' should match 'voces' (5 chars, no restriction)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery_subsequenceUnaffected() {
     // Subsequence matching is not affected — "fb" matches "fooBar" via subsequence
     let result = score("fb", against: "fooBar")
     #expect(result != nil, "'fb' should match 'fooBar' via subsequence (unaffected)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery_acronymUnaffected() {
     // Acronym matching is not affected — "bms" matches "Bristol-Myers Squibb"
     let result = score("bms", against: "Bristol-Myers Squibb")
     #expect(result != nil, "'bms' should match 'Bristol-Myers Squibb' via acronym (unaffected)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQuery_currencyTypoRanking() {
     // "UDS" should rank "USD" first; "USD Fund" and "USDA" blocked by restriction
     let results = rank("UDS", against: [
@@ -387,7 +359,6 @@ private func rank(
     #expect(usda == nil, "'UDS' should NOT match 'USDA'")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func sameLengthBoost_scoresHigherThanUnboosted() {
     // Same-length transposition should score significantly higher than
     // the raw normalizedScore (which would be ~0.78 for 3-char ED=1)

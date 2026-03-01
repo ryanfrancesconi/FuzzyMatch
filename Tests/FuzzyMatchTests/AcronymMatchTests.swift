@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Acronym Match Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchFullCoverage() {
     // "icag" should match "International Consolidated Airlines Group" (4/4 words)
     let matcher = FuzzyMatcher()
@@ -29,7 +28,6 @@ import Testing
     #expect(result!.score > 0.7)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchBMS() {
     // "bms" should match "Bristol-Myers Squibb" (3/3 words)
     let matcher = FuzzyMatcher()
@@ -42,7 +40,6 @@ import Testing
     #expect(result!.score > 0.7)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchBOA() {
     // "boa" against "Bank of America" — short query gets handled by
     // prefix/subsequence with good boundary bonuses, so acronym pass
@@ -56,7 +53,6 @@ import Testing
     #expect(result!.score > 0.5)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchPartialCoverage() {
     // "bms" matching "Bristol-Myers Squibb Company" (3/4 words)
     // When subsequence scores higher, it wins over acronym — that's correct
@@ -74,7 +70,6 @@ import Testing
     #expect(fullResult?.kind == .acronym)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymPartialCoverageScoringFormula() {
     // Verify partial coverage scores less than full coverage for same-length candidates
     let matcher = FuzzyMatcher()
@@ -93,7 +88,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchDoesNotOverrideBetterScore() {
     // When prefix/substring already gives a better score, acronym doesn't override
     let matcher = FuzzyMatcher()
@@ -107,7 +101,6 @@ import Testing
     #expect(result?.kind != .acronym)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchSkipsLongQuery() {
     // Queries > 8 chars should not trigger acronym pass
     let matcher = FuzzyMatcher()
@@ -120,7 +113,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchSkipsSingleChar() {
     // Single char queries should not trigger acronym pass
     let matcher = FuzzyMatcher()
@@ -133,7 +125,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchReturnsCorrectKind() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("icag")
@@ -143,7 +134,6 @@ import Testing
     #expect(result?.kind == .acronym)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchNoMatchWhenInitialsDontAlign() {
     // "xyz" should not match "Alpha Beta Charlie" as acronym
     let matcher = FuzzyMatcher()
@@ -156,7 +146,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymMatchCamelCase() {
     // "gubi" matching "getUserById" as acronym (word boundaries from camelCase)
     let matcher = FuzzyMatcher()
@@ -169,7 +158,6 @@ import Testing
     #expect(result!.score > 0.3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func acronymWeightConfig() {
     // Test that acronymWeight affects the score
     let boostedConfig = MatchConfig(algorithm: .editDistance(EditDistanceConfig(acronymWeight: 1.2)))

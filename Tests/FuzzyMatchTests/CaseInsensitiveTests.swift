@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Basic Case Insensitivity
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchingIgnoresCaseUpperToLower() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("ABC")
@@ -29,7 +28,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchingIgnoresCaseLowerToUpper() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("abc")
@@ -44,7 +42,6 @@ import Testing
 
 // MARK: - Mixed Case Strings
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func mixedCaseQueryMatchesMixedCaseCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("HeLLo")
@@ -57,7 +54,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func mixedCaseInLongerStrings() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("FuzzyMatcher")
@@ -72,7 +68,6 @@ import Testing
     #expect(result3?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func camelCaseMatching() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("camelcase")
@@ -84,7 +79,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func pascalCaseMatching() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("PASCALCASE")
@@ -96,7 +90,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func snakeCaseWithCases() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("snake_case")
@@ -111,7 +104,6 @@ import Testing
 
 // MARK: - Non-ASCII Characters Pass Through
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func nonASCIICharactersPassThroughUnchanged() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -124,7 +116,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func nonASCIIInQuery() {
     // Non-ASCII bytes pass through lowercaseASCII unchanged
     let matcher = FuzzyMatcher()
@@ -137,7 +128,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func numbersAreNotAffectedByCase() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("test123")
@@ -148,7 +138,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func specialCharactersNotAffectedByCase() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello_world")
@@ -161,7 +150,6 @@ import Testing
 
 // MARK: - Prefix and Substring Case Insensitivity
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixMatchCaseInsensitive() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("TEST")
@@ -173,7 +161,6 @@ import Testing
     #expect(result?.kind == .prefix)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func substringMatchCaseInsensitive() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("TEST")
@@ -186,7 +173,6 @@ import Testing
 
 // MARK: - Case Preservation in Original
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func queryOriginalPreservesCase() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("HeLLo WoRLd")
@@ -196,7 +182,6 @@ import Testing
 
 // MARK: - Scoring Consistency Across Cases
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoringConsistentAcrossCases() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -213,7 +198,6 @@ import Testing
     #expect(score2 == score3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func candidateCaseDoesNotAffectScore() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello")
@@ -229,7 +213,6 @@ import Testing
 
 // MARK: - Edge Cases with Case
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func singleCharacterCaseInsensitive() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("A")
@@ -240,7 +223,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func allUppercaseQuery() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -251,7 +233,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func allLowercaseQuery() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("abcdefghijklmnopqrstuvwxyz")

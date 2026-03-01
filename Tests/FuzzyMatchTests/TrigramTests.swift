@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Trigram Computation
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramComputationBasic() {
     let bytes: [UInt8] = Array("abcd".utf8)
     let trigrams = computeTrigrams(bytes)
@@ -25,7 +24,6 @@ import Testing
     #expect(trigrams.count == 2)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramComputationMinimumLength() {
     let bytes: [UInt8] = Array("abc".utf8)
     let trigrams = computeTrigrams(bytes)
@@ -34,7 +32,6 @@ import Testing
     #expect(trigrams.count == 1)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramComputationTooShort() {
     let bytes1: [UInt8] = Array("ab".utf8)
     let bytes2: [UInt8] = Array("a".utf8)
@@ -45,7 +42,6 @@ import Testing
     #expect(computeTrigrams(bytes3).isEmpty)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramComputationLongerString() {
     let bytes: [UInt8] = Array("hello".utf8)
     let trigrams = computeTrigrams(bytes)
@@ -54,7 +50,6 @@ import Testing
     #expect(trigrams.count == 3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramComputationRepeatedCharacters() {
     let bytes: [UInt8] = Array("aaaa".utf8)
     let trigrams = computeTrigrams(bytes)
@@ -63,7 +58,6 @@ import Testing
     #expect(trigrams.count == 1)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramComputationAllUnique() {
     let bytes: [UInt8] = Array("abcdef".utf8)
     let trigrams = computeTrigrams(bytes)
@@ -74,7 +68,6 @@ import Testing
 
 // MARK: - Trigram Hash
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramHashBasic() {
     let hash = trigramHash(0x61, 0x62, 0x63) // "abc"
 
@@ -83,7 +76,6 @@ import Testing
     #expect(hash == expected)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramHashUniqueness() {
     // Different trigrams should produce different hashes
     let hash1 = trigramHash(0x61, 0x62, 0x63) // "abc"
@@ -95,7 +87,6 @@ import Testing
     #expect(hash2 != hash3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramHashOrderMatters() {
     let hash1 = trigramHash(0x61, 0x62, 0x63) // "abc"
     let hash2 = trigramHash(0x63, 0x62, 0x61) // "cba"
@@ -103,7 +94,6 @@ import Testing
     #expect(hash1 != hash2)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramHashSameInputSameOutput() {
     let hash1 = trigramHash(0x68, 0x65, 0x6C) // "hel"
     let hash2 = trigramHash(0x68, 0x65, 0x6C) // "hel"
@@ -111,7 +101,6 @@ import Testing
     #expect(hash1 == hash2)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramHashBoundaryValues() {
     // Test with max byte values
     let hash = trigramHash(0xFF, 0xFF, 0xFF)
@@ -119,7 +108,6 @@ import Testing
     #expect(hash == expected)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramHashZeroBytes() {
     let hash = trigramHash(0x00, 0x00, 0x00)
     #expect(hash == 0)
@@ -127,28 +115,26 @@ import Testing
 
 // MARK: - Count Shared Trigrams
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func countSharedTrigramsExactMatch() {
     let queryBytes: [UInt8] = Array("hello".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("hello".utf8)
     let count = countSharedTrigrams(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams
     )
 
     #expect(count == 3) // "hel", "ell", "llo"
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func countSharedTrigramsPartialMatch() {
     let queryBytes: [UInt8] = Array("hello".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("help".utf8)
     let count = countSharedTrigrams(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams
     )
 
@@ -156,55 +142,51 @@ import Testing
     #expect(count == 1)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func countSharedTrigramsNoMatch() {
     let queryBytes: [UInt8] = Array("hello".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("xyz".utf8)
     let count = countSharedTrigrams(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams
     )
 
     #expect(count == 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func countSharedTrigramsCandidateTooShort() {
     let queryBytes: [UInt8] = Array("hello".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("he".utf8)
     let count = countSharedTrigrams(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams
     )
 
     #expect(count == 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func countSharedTrigramsEmptyQueryTrigrams() {
     let queryTrigrams = Set<UInt32>()
 
     let candidateBytes: [UInt8] = Array("hello".utf8)
     let count = countSharedTrigrams(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams
     )
 
     #expect(count == 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func countSharedTrigramsSubstring() {
     let queryBytes: [UInt8] = Array("test".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("unittest".utf8)
     let count = countSharedTrigrams(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams
     )
 
@@ -214,14 +196,13 @@ import Testing
 
 // MARK: - Trigram Filter
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramFilterPassesExactMatch() {
     let queryBytes: [UInt8] = Array("hello".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("hello".utf8)
     let passes = passesTrigramFilter(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams,
         maxEditDistance: 2
     )
@@ -229,14 +210,13 @@ import Testing
     #expect(passes)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramFilterPassesSimilarStrings() {
     let queryBytes: [UInt8] = Array("hello".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("hallo".utf8)
     let passes = passesTrigramFilter(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams,
         maxEditDistance: 2
     )
@@ -246,7 +226,6 @@ import Testing
     #expect(passes)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramFilterRejectsDissimilarStrings() {
     // With the relaxed trigram threshold (3 * maxEditDistance factor for DL transpositions),
     // very short candidates pass the trigram filter but are rejected by edit distance later.
@@ -256,7 +235,7 @@ import Testing
 
     let candidateBytes: [UInt8] = Array("xyz".utf8)
     let passes = passesTrigramFilter(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams,
         maxEditDistance: 2
     )
@@ -265,7 +244,6 @@ import Testing
     #expect(!passes)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramFilterNoFalseNegatives() {
     // Test that strings within edit distance are not rejected
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
@@ -287,13 +265,12 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramFilterPassesEmptyQueryTrigrams() {
     let queryTrigrams = Set<UInt32>()
 
     let candidateBytes: [UInt8] = Array("anything".utf8)
     let passes = passesTrigramFilter(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams,
         maxEditDistance: 2
     )
@@ -302,14 +279,13 @@ import Testing
     #expect(passes)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramFilterWithHigherEditDistance() {
     let queryBytes: [UInt8] = Array("hello".utf8)
     let queryTrigrams = computeTrigrams(queryBytes)
 
     let candidateBytes: [UInt8] = Array("world".utf8)
     let passes = passesTrigramFilter(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams,
         maxEditDistance: 5
     )
@@ -319,7 +295,6 @@ import Testing
     #expect(passes)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramFilterBoundaryCase() {
     // Query with 3 trigrams, candidate must have at least 1 (3-2=1) shared
     let queryBytes: [UInt8] = Array("hello".utf8) // 3 trigrams
@@ -328,7 +303,7 @@ import Testing
     // Candidate that shares exactly 1 trigram
     let candidateBytes: [UInt8] = Array("llox".utf8) // "llo" is shared
     let passes = passesTrigramFilter(
-        candidateBytes: candidateBytes.span,
+        candidateBytes: candidateBytes.ubp,
         queryTrigrams: queryTrigrams,
         maxEditDistance: 2
     )
@@ -338,7 +313,6 @@ import Testing
 
 // MARK: - Trigram Integration with FuzzyMatcher
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramIntegrationLongQuery() {
     // Queries of 4+ characters use trigram filtering
     let matcher = FuzzyMatcher()
@@ -351,7 +325,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramIntegrationShortQuery() {
     // Queries < 4 characters skip trigram filtering
     let matcher = FuzzyMatcher()

@@ -16,110 +16,100 @@ import Testing
 
 // MARK: - Word Boundary Detection Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryAtStart() {
     let bytes = Array("getUserById".utf8)
-    let result = isWordBoundary(at: 0, in: bytes.span)
+    let result = isWordBoundary(at: 0, in: bytes.ubp)
     #expect(result)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryAtCamelCaseTransition() {
     let bytes = Array("getUserById".utf8)
     // g e t U s e r B y I d
     // 0 1 2 3 4 5 6 7 8 9 10
-    let result3 = isWordBoundary(at: 3, in: bytes.span) // U in User
-    let result7 = isWordBoundary(at: 7, in: bytes.span) // B in By
-    let result9 = isWordBoundary(at: 9, in: bytes.span) // I in Id
+    let result3 = isWordBoundary(at: 3, in: bytes.ubp) // U in User
+    let result7 = isWordBoundary(at: 7, in: bytes.ubp) // B in By
+    let result9 = isWordBoundary(at: 9, in: bytes.ubp) // I in Id
     #expect(result3)
     #expect(result7)
     #expect(result9)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryNotInMiddleOfWord() {
     let bytes = Array("getUserById".utf8)
-    let result1 = isWordBoundary(at: 1, in: bytes.span) // e in get
-    let result2 = isWordBoundary(at: 2, in: bytes.span) // t in get
-    let result4 = isWordBoundary(at: 4, in: bytes.span) // s in User
-    let result5 = isWordBoundary(at: 5, in: bytes.span) // e in User
+    let result1 = isWordBoundary(at: 1, in: bytes.ubp) // e in get
+    let result2 = isWordBoundary(at: 2, in: bytes.ubp) // t in get
+    let result4 = isWordBoundary(at: 4, in: bytes.ubp) // s in User
+    let result5 = isWordBoundary(at: 5, in: bytes.ubp) // e in User
     #expect(!result1)
     #expect(!result2)
     #expect(!result4)
     #expect(!result5)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryAfterUnderscore() {
     let bytes = Array("get_user_by_id".utf8)
     // g e t _ u s e r _ b y  _  i  d
     // 0 1 2 3 4 5 6 7 8 9 10 11 12 13
-    let result0 = isWordBoundary(at: 0, in: bytes.span) // g (start)
-    let result4 = isWordBoundary(at: 4, in: bytes.span) // u after _
-    let result9 = isWordBoundary(at: 9, in: bytes.span) // b after _
-    let result12 = isWordBoundary(at: 12, in: bytes.span) // i after _
+    let result0 = isWordBoundary(at: 0, in: bytes.ubp) // g (start)
+    let result4 = isWordBoundary(at: 4, in: bytes.ubp) // u after _
+    let result9 = isWordBoundary(at: 9, in: bytes.ubp) // b after _
+    let result12 = isWordBoundary(at: 12, in: bytes.ubp) // i after _
     #expect(result0)
     #expect(result4)
     #expect(result9)
     #expect(result12)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryAfterDigit() {
     let bytes = Array("user2name".utf8)
     // u s e r 2 n a m e
     // 0 1 2 3 4 5 6 7 8
-    let result0 = isWordBoundary(at: 0, in: bytes.span) // u (start)
-    let result5 = isWordBoundary(at: 5, in: bytes.span) // n after 2
-    let result4 = isWordBoundary(at: 4, in: bytes.span) // 2 is not boundary
+    let result0 = isWordBoundary(at: 0, in: bytes.ubp) // u (start)
+    let result5 = isWordBoundary(at: 5, in: bytes.ubp) // n after 2
+    let result4 = isWordBoundary(at: 4, in: bytes.ubp) // 2 is not boundary
     #expect(result0)
     #expect(result5)
     #expect(!result4)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryAfterDot() {
     let bytes = Array("foo.bar".utf8)
     // f o o . b a r
     // 0 1 2 3 4 5 6
-    let result0 = isWordBoundary(at: 0, in: bytes.span) // f (start)
-    let result4 = isWordBoundary(at: 4, in: bytes.span) // b after .
+    let result0 = isWordBoundary(at: 0, in: bytes.ubp) // f (start)
+    let result4 = isWordBoundary(at: 4, in: bytes.ubp) // b after .
     #expect(result0)
     #expect(result4)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryAfterDash() {
     let bytes = Array("foo-bar".utf8)
-    let result0 = isWordBoundary(at: 0, in: bytes.span) // f (start)
-    let result4 = isWordBoundary(at: 4, in: bytes.span) // b after -
+    let result0 = isWordBoundary(at: 0, in: bytes.ubp) // f (start)
+    let result4 = isWordBoundary(at: 4, in: bytes.ubp) // b after -
     #expect(result0)
     #expect(result4)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func isWordBoundaryOutOfBounds() {
     let bytes = Array("abc".utf8)
-    let result3 = isWordBoundary(at: 3, in: bytes.span)
-    let result10 = isWordBoundary(at: 10, in: bytes.span)
+    let result3 = isWordBoundary(at: 3, in: bytes.ubp)
+    let result10 = isWordBoundary(at: 10, in: bytes.ubp)
     #expect(!result3)
     #expect(!result10)
 }
 
 // MARK: - Boundary Mask Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func computeBoundaryMaskSimple() {
     let bytes = Array("abc".utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // Only position 0 is a boundary
     #expect(mask == 0b1)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func computeBoundaryMaskCamelCase() {
     let bytes = Array("getUserById".utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // Boundaries at: 0 (g), 3 (U), 7 (B), 9 (I)
     // Binary: 0b1010001001 = positions 0, 3, 7, 9
     #expect((mask & (1 << 0)) != 0) // position 0
@@ -133,10 +123,9 @@ import Testing
     #expect((mask & (1 << 4)) == 0) // position 4
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func computeBoundaryMaskSnakeCase() {
     let bytes = Array("get_user_id".utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // g e t _ u s e r _ i d
     // 0 1 2 3 4 5 6 7 8 9 10
     // Boundaries at: 0 (g), 4 (u), 9 (i)
@@ -145,10 +134,9 @@ import Testing
     #expect((mask & (1 << 9)) != 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func computeBoundaryMaskMixedStyle() {
     let bytes = Array("XMLParser2Test".utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // X M L P a r s e r 2  T  e  s  t
     // 0 1 2 3 4 5 6 7 8 9 10 11 12 13
     // Boundaries at: 0 (X), 10 (T after 2)
@@ -158,21 +146,19 @@ import Testing
     #expect((mask & (1 << 10)) != 0) // position 10 (T after 2)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func computeBoundaryMaskEmpty() {
     let bytes: [UInt8] = []
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     #expect(mask == 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func computeBoundaryMaskLongString() {
     // Test that we handle strings longer than 64 characters
     // Pattern "abcDef" has boundaries at: 0 (a-start), 3 (D-camelCase) for first repetition
     // Subsequent repetitions only have 'D' as boundary because 'a' after 'f' is not a boundary
     let longString = String(repeating: "abcDef", count: 20) // 120 characters
     let bytes = Array(longString.utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // Should only compute first 64 positions
     #expect((mask & (1 << 0)) != 0) // position 0 (start of string)
     #expect((mask & (1 << 3)) != 0) // position 3 (D - camelCase)

@@ -35,8 +35,10 @@
 /// // 0     3       7   9
 ///
 /// let bytes = Array("getUserById".utf8)
-/// let mask = computeBoundaryMask(bytes: bytes.span)
-/// // mask has bits set at positions 0, 3, 7, 9
+/// bytes.withUnsafeBufferPointer { buf in
+///     let mask = computeBoundaryMask(bytes: buf)
+///     // mask has bits set at positions 0, 3, 7, 9
+/// }
 /// ```
 
 /// Checks if a position is a word boundary in a byte sequence.
@@ -61,15 +63,17 @@
 ///
 /// ```swift
 /// let bytes = Array("getUserById".utf8)
-/// isWordBoundary(at: 0, in: bytes.span)  // true (start)
-/// isWordBoundary(at: 1, in: bytes.span)  // false (middle of "get")
-/// isWordBoundary(at: 3, in: bytes.span)  // true (U in User)
-/// isWordBoundary(at: 7, in: bytes.span)  // true (B in By)
+/// bytes.withUnsafeBufferPointer { buf in
+///     isWordBoundary(at: 0, in: buf)  // true (start)
+///     isWordBoundary(at: 1, in: buf)  // false (middle of "get")
+///     isWordBoundary(at: 3, in: buf)  // true (U in User)
+///     isWordBoundary(at: 7, in: buf)  // true (B in By)
+/// }
 /// ```
 @inlinable
 internal func isWordBoundary(
     at index: Int,
-    in bytes: Span<UInt8>
+    in bytes: UnsafeBufferPointer<UInt8>
 ) -> Bool {
     let length = bytes.count
     // Position 0 is always a boundary
@@ -159,14 +163,16 @@ internal func isWordBoundaryFromPrev(prev: UInt8, current: UInt8) -> Bool {
 ///
 /// ```swift
 /// let bytes = Array("getUserById".utf8)
-/// isCamelCaseBoundary(at: 3, in: bytes.span)  // true ('t' → 'U')
-/// isCamelCaseBoundary(at: 0, in: bytes.span)  // false (no predecessor)
-/// isCamelCaseBoundary(at: 4, in: bytes.span)  // false ('U' → 's')
+/// bytes.withUnsafeBufferPointer { buf in
+///     isCamelCaseBoundary(at: 3, in: buf)  // true ('t' → 'U')
+///     isCamelCaseBoundary(at: 0, in: buf)  // false (no predecessor)
+///     isCamelCaseBoundary(at: 4, in: buf)  // false ('U' → 's')
+/// }
 /// ```
 @inlinable
 internal func isCamelCaseBoundary(
     at index: Int,
-    in bytes: Span<UInt8>
+    in bytes: UnsafeBufferPointer<UInt8>
 ) -> Bool {
     guard index > 0 && index < bytes.count else { return false }
     let previous = bytes[index - 1]
@@ -197,14 +203,16 @@ internal func isCamelCaseBoundary(
 ///
 /// ```swift
 /// let bytes = Array("getUserById".utf8)
-/// let mask = computeBoundaryMask(bytes: bytes.span)
+/// bytes.withUnsafeBufferPointer { buf in
+///     let mask = computeBoundaryMask(bytes: buf)
+/// }
 ///
 /// // Check if position 3 is a boundary (the 'U' in 'User')
 /// let isBoundary = (mask & (1 << 3)) != 0  // true
 /// ```
 @inlinable
 internal func computeBoundaryMask(
-    bytes: Span<UInt8>
+    bytes: UnsafeBufferPointer<UInt8>
 ) -> UInt64 {
     var mask: UInt64 = 0
     let limit = min(bytes.count, 64)
@@ -235,7 +243,7 @@ internal func computeBoundaryMask(
 /// O(min(length, 64)) - linear in the number of characters analyzed.
 @inlinable
 internal func computeBoundaryMaskCompressed(
-    originalBytes: Span<UInt8>,
+    originalBytes: UnsafeBufferPointer<UInt8>,
     isASCII: Bool
 ) -> UInt64 {
     // ASCII fast path: no combining marks possible, positions are 1:1

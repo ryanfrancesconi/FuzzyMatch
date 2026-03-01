@@ -31,7 +31,6 @@ extension FuzzyMatcher {
     ///     print("Score: \(match.score)")
     /// }
     /// ```
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     public func score(_ candidate: String, against query: String) -> ScoredMatch? {
         let prepared = prepare(query)
         var buffer = makeBuffer()
@@ -61,7 +60,6 @@ extension FuzzyMatcher {
     ///     print("\(result.candidate): \(result.match.score)")
     /// }
     /// ```
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     public func topMatches(
         _ candidates: some Sequence<String>,
         against query: FuzzyQuery,
@@ -112,7 +110,6 @@ extension FuzzyMatcher {
     /// )
     /// // Returns matches for "appConfig", "configManager", "userConfig"
     /// ```
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     public func matches(
         _ candidates: some Sequence<String>,
         against query: FuzzyQuery
@@ -142,7 +139,6 @@ extension FuzzyMatcher {
     ///   - limit: Maximum number of results to return. Default is `10`.
     /// - Returns: An array of ``MatchResult`` sorted by score descending,
     ///   containing at most `limit` elements.
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     public func topMatches(
         _ candidates: some Sequence<String>,
         against query: String,
@@ -161,7 +157,6 @@ extension FuzzyMatcher {
     ///   - candidates: The candidates to search.
     ///   - query: The query string to match against.
     /// - Returns: An array of ``MatchResult`` sorted by score descending.
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     public func matches(
         _ candidates: some Sequence<String>,
         against query: String

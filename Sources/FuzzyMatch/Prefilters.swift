@@ -195,7 +195,7 @@ internal func lowercaseCyrillic(lead: UInt8, second: UInt8) -> (UInt8, UInt8) {
 /// - Returns: The number of bytes written to `destination`.
 @inlinable @discardableResult
 internal func lowercaseUTF8(
-    from source: Span<UInt8>,
+    from source: UnsafeBufferPointer<UInt8>,
     into destination: inout [UInt8],
     isASCII: Bool
 ) -> Int {
@@ -301,9 +301,9 @@ internal func computeCharBitmask<S: Sequence>(_ bytes: S) -> UInt64 where S.Elem
 
 /// Computes a character presence bitmask for a Span of lowercased UTF-8 bytes.
 ///
-/// This overload works with Swift 6's Span type which doesn't conform to Sequence.
+/// This overload works with `UnsafeBufferPointer` for direct byte buffer access.
 @inlinable
-internal func computeCharBitmask(_ bytes: Span<UInt8>) -> UInt64 {
+internal func computeCharBitmask(_ bytes: UnsafeBufferPointer<UInt8>) -> UInt64 {
     var mask: UInt64 = 0
     var i = 0
     while i < bytes.count {
@@ -332,7 +332,7 @@ internal func computeCharBitmask(_ bytes: Span<UInt8>) -> UInt64 {
 /// - Parameter bytes: Raw UTF-8 bytes (not necessarily lowercased).
 /// - Returns: A 64-bit integer with bits set for each present character type.
 @inlinable
-internal func computeCharBitmaskCaseInsensitive(_ bytes: Span<UInt8>) -> UInt64 {
+internal func computeCharBitmaskCaseInsensitive(_ bytes: UnsafeBufferPointer<UInt8>) -> UInt64 {
     var mask: UInt64 = 0
     var i = 0
     while i < bytes.count {
@@ -409,7 +409,7 @@ internal let charBitmaskMask: UInt64 = (UInt64(1) << 37) &- 1
 /// compiler auto-vectorization and adds pipeline overhead that outweighs any savings
 /// from scanning fewer bytes on typical-length candidates (20-50 bytes).
 @inlinable
-internal func computeCharBitmaskWithASCIICheck(_ bytes: Span<UInt8>) -> (mask: UInt64, isASCII: Bool) {
+internal func computeCharBitmaskWithASCIICheck(_ bytes: UnsafeBufferPointer<UInt8>) -> (mask: UInt64, isASCII: Bool) {
     var mask: UInt64 = 0
     for i in 0..<bytes.count {
         mask |= charBitmaskLookup[Int(bytes[i])]

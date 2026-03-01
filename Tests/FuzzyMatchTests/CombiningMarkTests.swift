@@ -23,7 +23,6 @@ import Testing
 struct CombiningMarkTests {
     // MARK: - Edit Distance Mode
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Decomposed café matches precomposed café (partial)")
     func decomposedMatchesPrecomposed() {
         let matcher = FuzzyMatcher()
@@ -42,7 +41,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Precomposed café matches decomposed café (partial)")
     func precomposedMatchesDecomposed() {
         let matcher = FuzzyMatcher()
@@ -59,7 +57,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Self-match with combining marks returns score 1.0")
     func selfMatchWithCombiningMarks() {
         let matcher = FuzzyMatcher()
@@ -74,7 +71,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("resume matches résumé with combining marks")
     func resumeMatchesWithCombiningAccents() {
         let matcher = FuzzyMatcher()
@@ -90,7 +86,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Query with combining marks matches plain candidate")
     func queryWithMarksMatchesPlain() {
         let matcher = FuzzyMatcher()
@@ -106,7 +101,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Multiple combining marks are all stripped")
     func multipleCombiningMarksStripped() {
         let matcher = FuzzyMatcher()
@@ -124,7 +118,6 @@ struct CombiningMarkTests {
 
     // MARK: - Smith-Waterman Mode
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("SW: Plain query matches candidate with combining marks")
     func swPlainMatchesCombiningCandidate() {
         let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -140,7 +133,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("SW: Self-match with combining marks returns score 1.0")
     func swSelfMatchWithCombiningMarks() {
         let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -155,7 +147,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("SW: resume matches résumé with combining marks")
     func swResumeMatchesWithCombiningAccents() {
         let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -170,7 +161,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("SW: Query with combining marks matches plain candidate")
     func swQueryWithMarksMatchesPlain() {
         let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -189,7 +179,6 @@ struct CombiningMarkTests {
 
     // MARK: - Boundary Mask Alignment
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Boundary mask aligns with compressed positions when combining marks shift indices")
     func boundaryMaskCompressedAlignment() {
         // "ha\u{0308}llo_world" — decomposed ä in the middle shifts byte positions
@@ -199,7 +188,7 @@ struct CombiningMarkTests {
         let candidate = "ha\u{0308}llo_world"
         let originalBytes = Array(candidate.utf8)
         let mask = computeBoundaryMaskCompressed(
-            originalBytes: originalBytes.span,
+            originalBytes: originalBytes.ubp,
             isASCII: false
         )
         // Position 0 should be a boundary (start of string)
@@ -208,14 +197,13 @@ struct CombiningMarkTests {
         #expect((mask & (1 << 6)) != 0, "Position 6 (w after _) should be boundary in compressed space")
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("CamelCase boundary detected across combining mark")
     func camelCaseBoundaryAcrossCombiningMark() {
         // "a\u{0301}Bcd" — combining acute between 'a' and 'B'
         // Compressed: "aBcd" — should have camelCase boundary at position 1 (a→B)
         let bytes = Array("a\u{0301}Bcd".utf8)
         let mask = computeBoundaryMaskCompressed(
-            originalBytes: bytes.span,
+            originalBytes: bytes.ubp,
             isASCII: false
         )
         // Position 0: boundary (start of string)
@@ -224,7 +212,6 @@ struct CombiningMarkTests {
         #expect((mask & (1 << 1)) != 0, "Position 1 (B after a) should be camelCase boundary even with combining mark between them")
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Combining mark candidate scores same as precomposed for boundary bonuses")
     func combiningMarkBoundaryBonusConsistency() {
         let matcher = FuzzyMatcher()
@@ -251,7 +238,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("SW: Combining mark candidate scores same as precomposed for boundary bonuses")
     func swCombiningMarkBoundaryBonusConsistency() {
         let matcher = FuzzyMatcher(config: .smithWaterman)
@@ -274,7 +260,6 @@ struct CombiningMarkTests {
 
     // MARK: - Long Candidate Acronym (>64 bytes)
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Acronym gate counts words beyond byte 64")
     func acronymGateBeyond64Bytes() {
         let matcher = FuzzyMatcher()
@@ -294,7 +279,6 @@ struct CombiningMarkTests {
         }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("SW: Acronym gate counts words beyond byte 64")
     func swAcronymGateBeyond64Bytes() {
         let matcher = FuzzyMatcher(config: .smithWaterman)

@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Cyrillic Case Folding Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicExactMatchCaseInsensitive() {
     // "БЕОГРАД" should match "београд" exactly (score 1.0)
     let matcher = FuzzyMatcher()
@@ -29,7 +28,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicPrefixMatch() {
     // "беог" should match "београд" as prefix
     let matcher = FuzzyMatcher()
@@ -41,7 +39,6 @@ import Testing
     #expect(result!.score > 0.5)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicUppercasePrefixMatch() {
     // "БЕОГ" should match "београд" as prefix (case-insensitive)
     let matcher = FuzzyMatcher()
@@ -53,7 +50,6 @@ import Testing
     #expect(result!.score > 0.5)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicCrossLeadByte() {
     // "С" (D0 A1) lowercases to "с" (D1 81) — crosses lead byte boundary
     let matcher = FuzzyMatcher()
@@ -66,7 +62,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicDjeFolding() {
     // "Ђ" (D0 82) lowercases to "ђ" (D1 92) — Serbian letter, crosses lead byte
     let matcher = FuzzyMatcher()
@@ -79,7 +74,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicMixedCaseExact() {
     // Mixed case Cyrillic should match lowercased exactly
     let matcher = FuzzyMatcher()
@@ -94,7 +88,6 @@ import Testing
 
 // MARK: - Greek Case Folding Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekExactMatchCaseInsensitive() {
     // "ΑΘΗΝΑ" should match "αθηνα" exactly
     let matcher = FuzzyMatcher()
@@ -107,7 +100,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekCrossLeadByte() {
     // "Π" (CE A0) lowercases to "π" (CF 80) — crosses lead byte boundary
     let matcher = FuzzyMatcher()
@@ -120,7 +112,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekSigmaFolding() {
     // "ΣΙΓΜΑ" should match "σιγμα" — Σ (CE A3) → σ (CF 83)
     let matcher = FuzzyMatcher()
@@ -133,7 +124,6 @@ import Testing
     #expect(result!.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekPrefixMatch() {
     // "αθη" should match "αθηνα" as prefix
     let matcher = FuzzyMatcher()
@@ -147,7 +137,6 @@ import Testing
 
 // MARK: - Bitmask Prefilter Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicBitmaskNonZero() {
     // Cyrillic characters should produce non-zero bitmask bits
     let bytes = Array("београд".utf8)
@@ -155,7 +144,6 @@ import Testing
     #expect(mask != 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekBitmaskNonZero() {
     // Greek characters should produce non-zero bitmask bits
     let bytes = Array("αθηνα".utf8)
@@ -163,52 +151,47 @@ import Testing
     #expect(mask != 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicBitmaskCaseInsensitiveMatch() {
     // Upper and lowercase Cyrillic should produce matching bitmasks
     let upper = Array("БЕОГРАД".utf8)
     let lower = Array("београд".utf8)
-    let upperMask = computeCharBitmaskCaseInsensitive(upper.span)
-    let lowerMask = computeCharBitmaskCaseInsensitive(lower.span)
+    let upperMask = computeCharBitmaskCaseInsensitive(upper.ubp)
+    let lowerMask = computeCharBitmaskCaseInsensitive(lower.ubp)
     #expect(upperMask == lowerMask)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekBitmaskCaseInsensitiveMatch() {
     // Upper and lowercase Greek should produce matching bitmasks
     let upper = Array("ΑΘΗΝΑ".utf8)
     let lower = Array("αθηνα".utf8)
-    let upperMask = computeCharBitmaskCaseInsensitive(upper.span)
-    let lowerMask = computeCharBitmaskCaseInsensitive(lower.span)
+    let upperMask = computeCharBitmaskCaseInsensitive(upper.ubp)
+    let lowerMask = computeCharBitmaskCaseInsensitive(lower.ubp)
     #expect(upperMask == lowerMask)
 }
 
 // MARK: - Word Boundary Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicNoFalseBoundaries() {
     // No false word boundaries inside a Cyrillic word
     let bytes = Array("београд".utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // Only position 0 should be a boundary
     #expect(mask == 1)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekNoFalseBoundaries() {
     // No false word boundaries inside a Greek word
     let bytes = Array("αθηνα".utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // Only position 0 should be a boundary
     #expect(mask == 1)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicMultiWordBoundaries() {
     // Space-separated Cyrillic words should have boundaries at word starts
     let text = "нови сад"
     let bytes = Array(text.utf8)
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
     // Boundary at position 0 and after the space
     #expect((mask & 1) != 0) // position 0
     let spacePos = Array("нови ".utf8).count
@@ -217,7 +200,6 @@ import Testing
 
 // MARK: - Mixed Script Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func mixedLatinCyrillicNoFalseMatch() {
     // Latin "a" should not match Cyrillic "а" (they look similar but are different bytes)
     let matcher = FuzzyMatcher()
@@ -230,7 +212,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicSingleChar() {
     // Single Cyrillic character query (2 bytes) goes through full pipeline
     let matcher = FuzzyMatcher()
@@ -243,7 +224,6 @@ import Testing
 
 // MARK: - Acronym Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func cyrillicAcronymMatch() {
     // Cyrillic multi-word name with word-initial matching.
     // "нбс" matches "народна" as prefix (higher score), so we just check it matches.
@@ -256,7 +236,6 @@ import Testing
     #expect(result!.score > 0.3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func greekMultiWordSubsequence() {
     // Greek multi-word candidate — verify subsequence matching works
     let matcher = FuzzyMatcher()
@@ -270,7 +249,6 @@ import Testing
 
 // MARK: - Latin-1 Regression Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func latinExtendedStillWorks() {
     // Verify Latin-1 Supplement case folding still works after changes
     let matcher = FuzzyMatcher()
@@ -282,7 +260,6 @@ import Testing
     #expect(result!.score > 0.5)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func latinExtendedExactMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("café")

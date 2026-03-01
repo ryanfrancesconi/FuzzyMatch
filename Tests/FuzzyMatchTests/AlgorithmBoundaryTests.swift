@@ -22,7 +22,6 @@ import Testing
 
 // MARK: - 32-Character Boundary (Machine Word Size)
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternExactly32Characters() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -37,7 +36,6 @@ import Testing
     #expect(exactResult?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternExactly33Characters() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -52,7 +50,6 @@ import Testing
     #expect(exactResult?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternAt32CharBoundaryWithTransposition() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -67,7 +64,6 @@ import Testing
     // Should match with edit distance 1 (transposition)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternAt33CharBoundaryWithTransposition() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -81,7 +77,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternAt33CharBoundarySubstitutionAllowed() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -97,7 +92,6 @@ import Testing
     #expect(result != nil, "Single substitution on a 33-char string should match")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func prefixMatchAt32CharBoundary() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -113,7 +107,6 @@ import Testing
 
 // MARK: - 64-Character Boundary (Bit-Parallel Algorithm Switch)
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternExactly64Characters() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -127,7 +120,6 @@ import Testing
     #expect(exactResult?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternExactly65Characters() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -141,7 +133,6 @@ import Testing
     #expect(exactResult?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternAt64CharBoundaryWithTransposition() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -155,7 +146,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternAt65CharBoundaryWithTransposition() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -169,7 +159,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func patternAt65CharBoundarySubstitutionAllowed() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -185,14 +174,13 @@ import Testing
     #expect(result != nil, "Single substitution on a 65-char string should match")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func wordBoundaryMaskAt64thPosition() {
     // The boundary mask is a UInt64, so only positions 0-63 are tracked
     // Boundary detection uses original case - uppercase after lowercase is a boundary
     let candidate = String(repeating: "a", count: 63) + "Bc"
     let bytes = Array(candidate.utf8) // Keep original case for boundary detection
 
-    let mask = computeBoundaryMask(bytes: bytes.span)
+    let mask = computeBoundaryMask(bytes: bytes.ubp)
 
     // Position 0 should be boundary (start)
     #expect((mask & (1 << 0)) != 0)
@@ -201,24 +189,22 @@ import Testing
     #expect((mask & (1 << 63)) != 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func wordBoundaryDetectionBeyond64() {
     // Test isWordBoundary() fallback for positions >= 64
     let candidate = String(repeating: "a", count: 70) + "Bcd"
     let bytes = Array(candidate.utf8)
 
     // Position 70 is uppercase B after lowercase a - should be boundary
-    let isBoundary = isWordBoundary(at: 70, in: bytes.span)
+    let isBoundary = isWordBoundary(at: 70, in: bytes.ubp)
     #expect(isBoundary)
 
     // Position 71 is lowercase c after B - not a boundary
-    let notBoundary = isWordBoundary(at: 71, in: bytes.span)
+    let notBoundary = isWordBoundary(at: 71, in: bytes.ubp)
     #expect(!notBoundary)
 }
 
 // MARK: - Very Long Strings (65K+ Characters)
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func veryLongStringExactMatch() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -231,7 +217,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func veryLongCandidateShortQuery() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -247,7 +232,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func longStringWithTransposition() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -262,7 +246,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func uint16BoundaryString() {
     // Test near UInt16.max (65535) boundary
     let matcher = FuzzyMatcher()
@@ -283,7 +266,6 @@ import Testing
 // Tests at scales beyond the existing 1000-char tests to catch potential integer
 // overflow, performance cliffs, or rolling-array bugs in the DP computation.
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func largeString5KExactMatch() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -298,7 +280,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func largeString2KSingleSubstitution() {
     // DP is O(n*m) — use 2000 chars to keep test time reasonable (~1s)
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
@@ -314,7 +295,6 @@ import Testing
     #expect(result != nil, "2K string with single substitution should match")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func largeString2KTranspositionAtEnd() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -328,7 +308,6 @@ import Testing
     #expect(result != nil, "2K string with transposition at end should match")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func largeString10KExactMatch() {
     // Exact match short-circuits before DP, so large strings are fast
     let matcher = FuzzyMatcher()
@@ -343,7 +322,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func largeStringEditDistanceDirectly() {
     // Test the edit distance function directly at 2K scale
     let base = String(repeating: "a", count: 2000)
@@ -356,8 +334,8 @@ import Testing
     var state = EditDistanceState(maxQueryLength: query.count)
 
     let distance = prefixEditDistance(
-        query: query.span,
-        candidate: candidate.span,
+        query: query.ubp,
+        candidate: candidate.ubp,
         state: &state,
         maxEditDistance: 3
     )
@@ -365,7 +343,6 @@ import Testing
     #expect(distance == 1, "Single substitution in 2K string should have distance 1")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func largeStringShortQuerySubstringMatch() {
     // Short query finding a substring in a very long candidate
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.0))
@@ -384,7 +361,6 @@ import Testing
 
 // MARK: - Trigram Boundary Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramAt32CharString() {
     // Trigrams are computed for strings >= 3 chars
     // Note: trigrams are stored in a Set, so repeated patterns yield fewer unique trigrams
@@ -399,7 +375,6 @@ import Testing
     #expect(query.trigrams.count == 30)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func trigramAt64CharString() {
     let matcher = FuzzyMatcher()
 
@@ -415,15 +390,14 @@ import Testing
 
 // MARK: - Edit Distance at Boundaries
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceAt32CharBoundary() {
     let query: [UInt8] = Array(String(repeating: "a", count: 32).utf8)
     let candidate: [UInt8] = Array(String(repeating: "a", count: 32).utf8)
     var state = EditDistanceState(maxQueryLength: query.count)
 
     let distance = prefixEditDistance(
-        query: query.span,
-        candidate: candidate.span,
+        query: query.ubp,
+        candidate: candidate.ubp,
         state: &state,
         maxEditDistance: 3
     )
@@ -431,15 +405,14 @@ import Testing
     #expect(distance == 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceAt64CharBoundary() {
     let query: [UInt8] = Array(String(repeating: "a", count: 64).utf8)
     let candidate: [UInt8] = Array(String(repeating: "a", count: 64).utf8)
     var state = EditDistanceState(maxQueryLength: query.count)
 
     let distance = prefixEditDistance(
-        query: query.span,
-        candidate: candidate.span,
+        query: query.ubp,
+        candidate: candidate.ubp,
         state: &state,
         maxEditDistance: 3
     )
@@ -447,15 +420,14 @@ import Testing
     #expect(distance == 0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func editDistanceAt65CharBoundary() {
     let query: [UInt8] = Array(String(repeating: "a", count: 65).utf8)
     let candidate: [UInt8] = Array(String(repeating: "a", count: 65).utf8)
     var state = EditDistanceState(maxQueryLength: query.count)
 
     let distance = prefixEditDistance(
-        query: query.span,
-        candidate: candidate.span,
+        query: query.ubp,
+        candidate: candidate.ubp,
         state: &state,
         maxEditDistance: 3
     )
@@ -465,7 +437,6 @@ import Testing
 
 // MARK: - Bitmask at Boundaries
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func charBitmaskWithAllCharacterTypes() {
     // Test that bitmask correctly handles all 37 mapped characters
     // a-z (26) + 0-9 (10) + underscore (1) = 37 bits
@@ -492,7 +463,6 @@ import Testing
 
 // MARK: - Score Cutoff Boundary Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoreCutoffAtExactBoundary() {
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.5, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     var buffer = matcher.makeBuffer()
@@ -508,7 +478,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func scoreCutoffJustBelowBoundary() {
     // Test with high minScore to verify filtering works
     let matcher = FuzzyMatcher(config: MatchConfig(minScore: 0.9, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 3))))

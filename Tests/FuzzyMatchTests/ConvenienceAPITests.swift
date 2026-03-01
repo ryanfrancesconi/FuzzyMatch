@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - One-Shot score(_:against:) Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotExactMatch() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("User", against: "user")
@@ -25,14 +24,12 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotNilForNonMatch() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("abc", against: "xyz")
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotPrefixMatch() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("getUserById", against: "get")
@@ -40,14 +37,12 @@ import Testing
     #expect(result?.kind == .prefix)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotSubstringMatch() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("getCurrentUser", against: "user")
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotAcronymMatch() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("International Consolidated Airlines Group", against: "icag")
@@ -55,7 +50,6 @@ import Testing
     #expect(result?.kind == .acronym)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotEmptyQuery() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("anything", against: "")
@@ -64,14 +58,12 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotEmptyCandidate() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("", against: "test")
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotSingleCharQuery() {
     let matcher = FuzzyMatcher()
     let result = matcher.score("apple", against: "a")
@@ -79,7 +71,6 @@ import Testing
     #expect(result?.kind == .prefix)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotWithCustomConfig() {
     let config = MatchConfig(minScore: 0.8, algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 1)))
     let matcher = FuzzyMatcher(config: config)
@@ -94,7 +85,6 @@ import Testing
 
 // MARK: - One-Shot Equivalence with High-Performance API
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotEquivalentToBufferAPI() {
     let matcher = FuzzyMatcher()
     let candidates = ["getUserById", "setUser", "fetchData", "configManager"]
@@ -111,7 +101,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotEquivalenceAcrossMatchKinds() {
     let matcher = FuzzyMatcher()
 
@@ -141,7 +130,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func oneShotEquivalenceWithTypos() {
     let matcher = FuzzyMatcher()
 
@@ -168,7 +156,6 @@ import Testing
 
 // MARK: - topMatches Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesReturnsCorrectCount() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("user")
@@ -178,7 +165,6 @@ import Testing
     #expect(results.count == 3)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesSortedByScoreDescending() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("user")
@@ -190,7 +176,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesRespectsLimit() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("a")
@@ -200,7 +185,6 @@ import Testing
     #expect(results.count == 5)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesDefaultLimitIs10() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("a")
@@ -210,7 +194,6 @@ import Testing
     #expect(results.count == 10)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesEmptyWhenNoMatches() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("xyz")
@@ -220,7 +203,6 @@ import Testing
     #expect(results.isEmpty)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesFewerThanLimit() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("user")
@@ -231,7 +213,6 @@ import Testing
     #expect(results[0].candidate == "user")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesLimitOne() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("config")
@@ -245,7 +226,6 @@ import Testing
     #expect(results[0].match.score == all[0].match.score)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesEmptyInput() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("test")
@@ -253,7 +233,6 @@ import Testing
     #expect(results.isEmpty)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesSingleCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("user")
@@ -266,7 +245,6 @@ import Testing
     #expect(nonMatching.isEmpty)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesKeepsHighestScores() {
     // Verify that when more candidates match than the limit allows,
     // the returned results are truly the highest-scoring ones
@@ -293,7 +271,6 @@ import Testing
 
 // MARK: - topMatches Equivalence with High-Performance API
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesEquivalentToManualSort() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("config")
@@ -326,7 +303,6 @@ import Testing
 
 // MARK: - matches Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesReturnsAllMatches() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("config")
@@ -340,7 +316,6 @@ import Testing
     #expect(names.contains("userConfig"))
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesEmptyForNoMatches() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("zzz")
@@ -350,7 +325,6 @@ import Testing
     #expect(results.isEmpty)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesSortedByScoreDescending() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("get")
@@ -362,7 +336,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesEmptyInput() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("test")
@@ -370,7 +343,6 @@ import Testing
     #expect(results.isEmpty)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesSingleCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("user")
@@ -384,7 +356,6 @@ import Testing
     #expect(nonMatching.isEmpty)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesLargeInput() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("item")
@@ -401,7 +372,6 @@ import Testing
 
 // MARK: - matches Equivalence with High-Performance API
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesEquivalentToManualCollectAndSort() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("get")
@@ -436,7 +406,6 @@ import Testing
 
 // MARK: - Cross-method consistency
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func topMatchesSubsetOfMatches() {
     // topMatches(limit: N) should return the same candidates and scores
     // as the first N elements of matches()
@@ -460,7 +429,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func matchesCountMatchesTopMatchesUnlimited() {
     // matches() should return the same count as topMatches with a huge limit
     let matcher = FuzzyMatcher()

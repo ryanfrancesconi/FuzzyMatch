@@ -24,10 +24,9 @@ extension FuzzyMatcher {
     /// 5. Run Smith-Waterman DP
     /// 6. Normalize raw score to 0.0–1.0
     /// 7. Apply minScore threshold
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @inlinable
     internal func scoreSmithWatermanImpl(
-        _ candidateUTF8: Span<UInt8>,
+        _ candidateUTF8: UnsafeBufferPointer<UInt8>,
         against query: FuzzyQuery,
         swConfig: SmithWatermanConfig,
         candidateStorage: inout CandidateStorage,
@@ -269,10 +268,7 @@ extension FuzzyMatcher {
             actualCandidateLength = outIdx
         }
 
-        let candidateSpan = candidateStorage.bytes.span.extracting(0..<actualCandidateLength)
-        let bonusSpan = candidateStorage.bonus.span.extracting(0..<actualCandidateLength)
-
-        // Exact match early exit (before atom split so multi-word self-matches return .exact)
+        // Exact match early exit (before UBP borrow to avoid exclusivity conflict)
         if actualCandidateLength == queryLength {
             var isExact = true
             for i in 0..<queryLength {
@@ -286,99 +282,109 @@ extension FuzzyMatcher {
             }
         }
 
-        if query.atoms.count > 1 {
-            // Multi-atom path: score each word independently, AND semantics
-            var totalRawScore: Int32 = 0
-            for atom in query.atoms {
-                let atomQuery = query.lowercased.span.extracting(
-                    atom.start..<(atom.start + atom.length)
-                )
-                let atomScore = smithWatermanScore(
-                    query: atomQuery,
-                    candidate: candidateSpan,
-                    bonus: bonusSpan,
-                    state: &smithWatermanState,
-                    config: sw
-                )
-                if atomScore <= 0 {
+        // Borrow byte buffers for the scoring phases
+        return candidateStorage.bytes.withUnsafeBufferPointer { candBuf in
+            candidateStorage.bonus.withUnsafeBufferPointer { bonusBuf in
+                query.lowercased.withUnsafeBufferPointer { queryBuf in
+                    let candidateSpan = UnsafeBufferPointer(rebasing: candBuf[0..<actualCandidateLength])
+                    let bonusSpan = UnsafeBufferPointer<Int32>(rebasing: bonusBuf[0..<actualCandidateLength])
+
+                    if query.atoms.count > 1 {
+                        // Multi-atom path: score each word independently, AND semantics
+                        var totalRawScore: Int32 = 0
+                        for atom in query.atoms {
+                            let atomQuery = UnsafeBufferPointer(
+                                rebasing: queryBuf[atom.start..<(atom.start + atom.length)]
+                            )
+                            let atomScore = smithWatermanScore(
+                                query: atomQuery,
+                                candidate: candidateSpan,
+                                bonus: bonusSpan,
+                                state: &smithWatermanState,
+                                config: sw
+                            )
+                            if atomScore <= 0 {
+                                return nil
+                            }
+                            totalRawScore += atomScore
+                        }
+
+                        let maxScore = query.maxSmithWatermanScore
+                        guard maxScore > 0 else { return nil }
+                        let normalizedScore = min(1.0, max(0.0, Double(totalRawScore) / Double(maxScore)))
+                        if normalizedScore >= query.config.minScore {
+                            return ScoredMatch(score: normalizedScore, kind: .alignment)
+                        }
+                        return nil
+                    }
+
+                    // Single-word path
+                    let querySpan = queryBuf
+
+                    // Run Smith-Waterman DP with precomputed bonus array
+                    let rawScore = smithWatermanScore(
+                        query: querySpan,
+                        candidate: candidateSpan,
+                        bonus: bonusSpan,
+                        state: &smithWatermanState,
+                        config: sw
+                    )
+
+                    // Compute best SW score
+                    var bestScore: Double = -1
+                    var bestKind: MatchKind = .alignment
+
+                    if rawScore > 0 {
+                        let maxScore = query.maxSmithWatermanScore
+                        if maxScore > 0 {
+                            let normalizedScore = min(1.0, max(0.0, Double(rawScore) / Double(maxScore)))
+                            if normalizedScore >= query.config.minScore {
+                                bestScore = normalizedScore
+                            }
+                        }
+                    }
+
+                    // Acronym fallback: compete with SW score for short queries (2-8 chars)
+                    if queryLength >= 2 && queryLength <= 8 {
+                        let boundaryMask = computeBoundaryMaskCompressed(originalBytes: candidateUTF8, isASCII: candidateIsASCII)
+                        var wordCount = boundaryMask.nonzeroBitCount
+                        if actualCandidateLength > 64 {
+                            for i in 64..<actualCandidateLength {
+                                if isWordBoundary(at: i, in: candidateSpan) {
+                                    wordCount += 1
+                                }
+                            }
+                        }
+                        if wordCount >= 3 && wordCount >= queryLength {
+                            var acronymState = ScoringState()
+                            acronymState.boundaryMask = boundaryMask
+                            acronymState.bestScore = bestScore
+
+                            scoreAcronym(
+                                querySpan: querySpan,
+                                candidateSpan: candidateSpan,
+                                candidateUTF8: candidateUTF8,
+                                query: query,
+                                candidateLength: actualCandidateLength,
+                                acronymWeight: 1.0,
+                                state: &acronymState,
+                                wordInitials: &wordInitials
+                            )
+
+                            if acronymState.bestScore > bestScore {
+                                bestScore = acronymState.bestScore
+                                bestKind = acronymState.bestKind
+                            }
+                        }
+                    }
+
+                    if bestScore >= query.config.minScore {
+                        return ScoredMatch(score: bestScore, kind: bestKind)
+                    }
+
                     return nil
                 }
-                totalRawScore += atomScore
-            }
-
-            let maxScore = query.maxSmithWatermanScore
-            guard maxScore > 0 else { return nil }
-            let normalizedScore = min(1.0, max(0.0, Double(totalRawScore) / Double(maxScore)))
-            if normalizedScore >= query.config.minScore {
-                return ScoredMatch(score: normalizedScore, kind: .alignment)
-            }
-            return nil
-        }
-
-        // Single-word path
-        let querySpan = query.lowercased.span
-
-        // Run Smith-Waterman DP with precomputed bonus array
-        let rawScore = smithWatermanScore(
-            query: querySpan,
-            candidate: candidateSpan,
-            bonus: bonusSpan,
-            state: &smithWatermanState,
-            config: sw
-        )
-
-        // Compute best SW score
-        var bestScore: Double = -1
-        var bestKind: MatchKind = .alignment
-
-        if rawScore > 0 {
-            let maxScore = query.maxSmithWatermanScore
-            if maxScore > 0 {
-                let normalizedScore = min(1.0, max(0.0, Double(rawScore) / Double(maxScore)))
-                if normalizedScore >= query.config.minScore {
-                    bestScore = normalizedScore
-                }
             }
         }
-
-        // Acronym fallback: compete with SW score for short queries (2-8 chars)
-        if queryLength >= 2 && queryLength <= 8 {
-            let boundaryMask = computeBoundaryMaskCompressed(originalBytes: candidateUTF8, isASCII: candidateIsASCII)
-            var wordCount = boundaryMask.nonzeroBitCount
-            if actualCandidateLength > 64 {
-                for i in 64..<actualCandidateLength {
-                    if isWordBoundary(at: i, in: candidateSpan) {
-                        wordCount += 1
-                    }
-                }
-            }
-            if wordCount >= 3 && wordCount >= queryLength {
-                var acronymState = ScoringState()
-                acronymState.boundaryMask = boundaryMask
-                acronymState.bestScore = bestScore
-
-                scoreAcronym(
-                    querySpan: querySpan,
-                    candidateSpan: candidateSpan,
-                    candidateUTF8: candidateUTF8,
-                    query: query,
-                    candidateLength: actualCandidateLength,
-                    acronymWeight: 1.0,
-                    state: &acronymState,
-                    wordInitials: &wordInitials
-                )
-
-                if acronymState.bestScore > bestScore {
-                    bestScore = acronymState.bestScore
-                    bestKind = acronymState.bestKind
-                }
-            }
-        }
-
-        if bestScore >= query.config.minScore {
-            return ScoredMatch(score: bestScore, kind: bestKind)
-        }
-
-        return nil
     }
 }

@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Buffer Shrink Policy Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferGrowsForLargeInput() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -32,7 +31,6 @@ import Testing
     #expect(buffer.candidateStorage.bytes.count >= 300)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferShrinksAfterManySmallInputs() {
     var buffer = ScoringBuffer()
     // Set a small interval for testing
@@ -54,7 +52,6 @@ import Testing
     #expect(buffer.candidateStorage.bytes.count <= 128, "Candidate buffer should have shrunk. Actual: \(buffer.candidateStorage.bytes.count)")
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferDoesNotShrinkWhenCapacityIsAppropriate() {
     var buffer = ScoringBuffer()
     buffer.shrinkCheckInterval = 10
@@ -68,7 +65,6 @@ import Testing
     #expect(buffer.candidateStorage.bytes.count == 128)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func bufferShrinkDoesNotAffectCorrectness() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -96,7 +92,6 @@ import Testing
     #expect(result3 != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func highWaterMarkTracksMaximum() {
     var buffer = ScoringBuffer()
     buffer.shrinkCheckInterval = 100 // Won't trigger shrink during test
@@ -114,7 +109,6 @@ import Testing
     #expect(buffer.highWaterQueryLength == 20)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shrinkResetsTracking() {
     var buffer = ScoringBuffer()
     buffer.shrinkCheckInterval = 5

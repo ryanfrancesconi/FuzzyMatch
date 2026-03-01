@@ -16,7 +16,6 @@ import Testing
 
 // MARK: - Single Character Strings
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func singleCharacterExactMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("a")
@@ -29,7 +28,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func singleCharacterPrefixMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("a")
@@ -41,7 +39,6 @@ import Testing
     #expect(result!.score > 0.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func singleCharacterNoMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("x")
@@ -60,7 +57,6 @@ import Testing
 
 // MARK: - Very Short Queries (1-2 chars)
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func twoCharacterExactMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("ab")
@@ -72,7 +68,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func twoCharacterPrefixMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("ab")
@@ -83,7 +78,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func twoCharacterSubstringMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("bc")
@@ -94,7 +88,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQueryNoTrigrams() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("ab")
@@ -105,7 +98,6 @@ import Testing
 
 // MARK: - Query Longer Than Candidate
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func queryLongerThanCandidateNoMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("abcdefghij")
@@ -118,7 +110,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func querySlightlyLongerThanCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("abcd")
@@ -131,7 +122,6 @@ import Testing
 
 // MARK: - Identical Strings
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func identicalStringsExactMatch() {
     let matcher = FuzzyMatcher()
     var buffer = matcher.makeBuffer()
@@ -156,7 +146,6 @@ import Testing
     }
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func pluralStringShouldMatch() throws {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("snares")
@@ -173,7 +162,6 @@ import Testing
 
 // MARK: - Completely Different Strings
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func completelyDifferentStringsNoMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello")
@@ -186,7 +174,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func differentLengthDifferentContent() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("abcdef")
@@ -199,7 +186,6 @@ import Testing
 
 // MARK: - Unicode Characters
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func unicodeCharactersBasicASCII() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello")
@@ -210,7 +196,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func unicodeMultibyteCharacters() {
     // Multi-byte UTF-8 characters (non-ASCII)
     // The library operates on UTF-8 bytes, so multi-byte characters
@@ -225,7 +210,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func unicodeInLongerString() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("test")
@@ -238,7 +222,6 @@ import Testing
 
 // MARK: - Empty Strings
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func emptyQueryEmptyCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("")
@@ -250,7 +233,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func emptyQueryNonEmptyCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("")
@@ -263,7 +245,6 @@ import Testing
     #expect(result?.kind == .exact)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func nonEmptyQueryEmptyCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello")
@@ -276,7 +257,6 @@ import Testing
 
 // MARK: - Whitespace
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func whitespaceInStrings() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello world")
@@ -287,7 +267,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func leadingTrailingWhitespace() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare(" hello ")
@@ -298,7 +277,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func tabsAndNewlines() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello\tworld")
@@ -311,7 +289,6 @@ import Testing
 
 // MARK: - Special Characters
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func underscoresInStrings() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("hello_world")
@@ -322,7 +299,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func numbersInStrings() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("test123")
@@ -333,7 +309,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func mixedSpecialCharacters() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("a_1_b_2")
@@ -346,7 +321,6 @@ import Testing
 
 // MARK: - Repeated Characters
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func repeatedCharactersExactMatch() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("aaaaaa")
@@ -357,7 +331,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func repeatedCharactersDifferentLength() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("aaa")
@@ -370,7 +343,6 @@ import Testing
 
 // MARK: - Very Long Strings
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func longStringsExactMatch() {
     let matcher = FuzzyMatcher()
     let longString = String(repeating: "abcdefghij", count: 10) // 100 chars
@@ -382,7 +354,6 @@ import Testing
     #expect(result?.score == 1.0)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func longQueryShortCandidate() {
     let matcher = FuzzyMatcher()
     let longString = String(repeating: "abcdefghij", count: 10) // 100 chars
@@ -395,7 +366,6 @@ import Testing
     #expect(result == nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func shortQueryLongCandidate() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("abc")
@@ -409,7 +379,6 @@ import Testing
 
 // MARK: - Boundary Length Tests
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func candidateAtMaxAllowedLength() {
     let matcher = FuzzyMatcher()
     let query = matcher.prepare("abc") // length 3
@@ -421,7 +390,6 @@ import Testing
     #expect(result != nil)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func candidateExceedsMaxAllowedLength() {
     // This test verifies that long candidates CAN match (for subsequence matching)
     // There is no upper length restriction to support abbreviation-style matching
@@ -436,7 +404,6 @@ import Testing
     #expect(result?.kind == .prefix)
 }
 
-@available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
 @Test func candidateAtMinAllowedLength() {
     let matcher = FuzzyMatcher(config: MatchConfig(algorithm: .editDistance(EditDistanceConfig(maxEditDistance: 2))))
     let query = matcher.prepare("abcde") // length 5

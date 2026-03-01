@@ -22,26 +22,27 @@ struct TinyQueryFastPathTests {
 
     /// Helper that scores via the full pipeline (bypassing the fast path)
     /// by calling scoreImpl directly.
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     private func scoreViaFullPipeline(
         _ candidate: String,
         against query: FuzzyQuery
     ) -> ScoredMatch? {
         var buffer = matcher.makeBuffer()
         buffer.recordUsage(queryLength: query.lowercased.count, candidateLength: candidate.utf8.count)
-        return matcher.scoreImpl(
-            candidate.utf8.span,
-            against: query,
-            edConfig: query.config.editDistanceConfig ?? .default,
-            candidateStorage: &buffer.candidateStorage,
-            editDistanceState: &buffer.editDistanceState,
-            matchPositions: &buffer.matchPositions,
-            alignmentState: &buffer.alignmentState,
-            wordInitials: &buffer.wordInitials
-        )
+        let candidateBytes = Array(candidate.utf8)
+        return candidateBytes.withUnsafeBufferPointer { candidateUTF8 in
+            matcher.scoreImpl(
+                candidateUTF8,
+                against: query,
+                edConfig: query.config.editDistanceConfig ?? .default,
+                candidateStorage: &buffer.candidateStorage,
+                editDistanceState: &buffer.editDistanceState,
+                matchPositions: &buffer.matchPositions,
+                alignmentState: &buffer.alignmentState,
+                wordInitials: &buffer.wordInitials
+            )
+        }
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char query score matches full pipeline")
     func oneCharScoreEquivalence() {
         let pairs: [(String, String)] = [
@@ -71,7 +72,6 @@ struct TinyQueryFastPathTests {
 
     // MARK: - Match Kinds
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char exact match")
     func oneCharExact() {
         let query = matcher.prepare("a")
@@ -81,7 +81,6 @@ struct TinyQueryFastPathTests {
         #expect(result?.score == 1.0)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char exact case-insensitive")
     func oneCharExactCaseInsensitive() {
         let query = matcher.prepare("a")
@@ -91,7 +90,6 @@ struct TinyQueryFastPathTests {
         #expect(result?.score == 1.0)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char prefix match")
     func oneCharPrefix() {
         let query = matcher.prepare("g")
@@ -101,7 +99,6 @@ struct TinyQueryFastPathTests {
         #expect(result != nil)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char substring match")
     func oneCharSubstring() {
         let query = matcher.prepare("x")
@@ -112,7 +109,6 @@ struct TinyQueryFastPathTests {
 
     // MARK: - Edge Cases
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char query against empty candidate")
     func oneCharEmptyCandidate() {
         let query = matcher.prepare("a")
@@ -121,7 +117,6 @@ struct TinyQueryFastPathTests {
         #expect(result == nil)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Digit query")
     func digitQuery() {
         let query = matcher.prepare("5")
@@ -130,7 +125,6 @@ struct TinyQueryFastPathTests {
         #expect(result != nil)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("Underscore boundary")
     func underscoreBoundary() {
         let query = matcher.prepare("u")
@@ -139,7 +133,6 @@ struct TinyQueryFastPathTests {
         #expect(result != nil)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("CamelCase boundary preferred")
     func camelCaseBoundary() {
         let query = matcher.prepare("u")
@@ -151,7 +144,6 @@ struct TinyQueryFastPathTests {
 
     // MARK: - No-match Cases
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char no match")
     func oneCharNoMatch() {
         let query = matcher.prepare("z")
@@ -162,7 +154,6 @@ struct TinyQueryFastPathTests {
 
     // MARK: - Ranking Preservation
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char prefix ranks above substring")
     func oneCharPrefixRanksAboveSubstring() {
         let query = matcher.prepare("g")
@@ -174,7 +165,6 @@ struct TinyQueryFastPathTests {
         #expect(prefix!.score > substring!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char exact ranks above prefix")
     func oneCharExactRanksAbovePrefix() {
         let query = matcher.prepare("a")
@@ -186,7 +176,6 @@ struct TinyQueryFastPathTests {
         #expect(exact!.score > prefix!.score)
     }
 
-    @available(macOS 26, iOS 26, visionOS 26, watchOS 26, *)
     @Test("1-char shorter candidate scores higher")
     func oneCharShorterCandidateWins() {
         let query = matcher.prepare("g")
