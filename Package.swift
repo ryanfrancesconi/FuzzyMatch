@@ -7,8 +7,8 @@ let package = Package(
     platforms: [
         .macOS(.v14),
         .iOS(.v17),
+        .watchOS(.v10),
         .visionOS(.v1),
-        .watchOS(.v10)
     ],
     products: [
         .library(
@@ -25,6 +25,6 @@ let package = Package(
             name: "FuzzyMatchTests",
             dependencies: ["FuzzyMatch"],
             path: "Tests/FuzzyMatchTests"
-        )
+        ),
     ]
 )
