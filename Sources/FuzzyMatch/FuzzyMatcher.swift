@@ -284,9 +284,8 @@ public struct FuzzyMatcher: Sendable {
 
         // Obtain a contiguous UnsafeBufferPointer for the candidate's UTF-8 bytes.
         // Native Swift strings are always contiguous; the fallback handles bridged NSString.
-        @inline(__always)
-        func scoreInner(_ candidateUTF8: UnsafeBufferPointer<UInt8>) -> ScoredMatch? {
-            // Dispatch based on matching algorithm
+        // Use a single withContiguousStorageIfAvailable to avoid closure nesting.
+        if let result = candidate.utf8.withContiguousStorageIfAvailable({ candidateUTF8 -> ScoredMatch? in
             switch query.config.algorithm {
             case let .smithWaterman(swConfig):
                 return scoreSmithWatermanImpl(
@@ -299,8 +298,6 @@ public struct FuzzyMatcher: Sendable {
                 )
 
             case let .editDistance(edConfig):
-                // Fast path for 1-character queries: single scan, no buffer needed.
-                // Skip for multi-byte queries (e.g. Latin Extended "à" = 2 UTF-8 bytes).
                 let queryLength = query.lowercased.count
                 if queryLength == 1 {
                     return scoreTinyQuery1(
@@ -311,8 +308,6 @@ public struct FuzzyMatcher: Sendable {
                         minScore: query.config.minScore
                     )
                 }
-
-                // Pass components separately to avoid exclusivity conflicts
                 return scoreImpl(
                     candidateUTF8,
                     against: query,
@@ -324,14 +319,48 @@ public struct FuzzyMatcher: Sendable {
                     wordInitials: &buffer.wordInitials
                 )
             }
-        }
-
-        if let result = candidate.utf8.withContiguousStorageIfAvailable({ scoreInner($0) }) {
+        }) {
             return result
         }
         // Fallback for non-contiguous UTF-8 (rare: bridged NSString)
-        let bytes = Array(candidate.utf8)
-        return bytes.withUnsafeBufferPointer { scoreInner($0) }
+        var bytes = Array(candidate.utf8)
+        let candidateUTF8 = UnsafeBufferPointer(
+            start: bytes.withUnsafeBufferPointer({ $0.baseAddress }),
+            count: bytes.count
+        )
+        switch query.config.algorithm {
+        case let .smithWaterman(swConfig):
+            return scoreSmithWatermanImpl(
+                candidateUTF8,
+                against: query,
+                swConfig: swConfig,
+                candidateStorage: &buffer.candidateStorage,
+                smithWatermanState: &buffer.smithWatermanState,
+                wordInitials: &buffer.wordInitials
+            )
+
+        case let .editDistance(edConfig):
+            let queryLength = query.lowercased.count
+            if queryLength == 1 {
+                return scoreTinyQuery1(
+                    candidateUTF8,
+                    candidateLength: candidateUTF8.count,
+                    q0: query.lowercased[0],
+                    edConfig: edConfig,
+                    minScore: query.config.minScore
+                )
+            }
+            return scoreImpl(
+                candidateUTF8,
+                against: query,
+                edConfig: edConfig,
+                candidateStorage: &buffer.candidateStorage,
+                editDistanceState: &buffer.editDistanceState,
+                matchPositions: &buffer.matchPositions,
+                alignmentState: &buffer.alignmentState,
+                wordInitials: &buffer.wordInitials
+            )
+        }
     }
 
     // MARK: - Scoring State
@@ -421,7 +450,7 @@ public struct FuzzyMatcher: Sendable {
         state.effectiveMaxEditDistance = effectiveMaxEditDistance
         state.needsAlignment = needsAlignment
 
-        // Phase 2: Exact match (early exit) — before UBP borrow to avoid exclusivity conflict
+        // Phase 2: Exact match (early exit)
         if let exact = checkExactMatch(
             candidateBytes: candidateStorage.bytes,
             query: query,
@@ -430,87 +459,91 @@ public struct FuzzyMatcher: Sendable {
             return exact
         }
 
-        // Borrow byte buffers for the scoring phases
-        return candidateStorage.bytes.withUnsafeBufferPointer { candBuf in
-            query.lowercased.withUnsafeBufferPointer { queryBuf in
-                let candidateSpan = UnsafeBufferPointer(rebasing: candBuf[0 ..< actualCandidateLength])
-                let querySpan = queryBuf
+        // Extract raw pointers for the scoring phases — no closure nesting needed.
+        // Safe because candidateStorage.bytes and query.lowercased are not reallocated
+        // during the scoring phases below (capacity was ensured above).
+        let candidateSpan = UnsafeBufferPointer(
+            start: candidateStorage.bytes.withUnsafeBufferPointer({ $0.baseAddress }),
+            count: actualCandidateLength
+        )
+        let querySpan = UnsafeBufferPointer(
+            start: query.lowercased.withUnsafeBufferPointer({ $0.baseAddress }),
+            count: query.lowercased.count
+        )
 
-                // Prefilter 3: Trigrams (only if query has enough trigrams to be selective)
-                // Skip when threshold (queryTrigrams.count - 3*maxED) is non-positive,
-                // since the filter would accept every candidate anyway.
-                // Space-containing trigrams are excluded at computation time, so this
-                // is safe for multi-word queries (see computeTrigrams for rationale).
-                if query.lowercased.count >= 4
-                    && query.trigrams.count > 3 * effectiveMaxEditDistance
-                {
-                    if !passesTrigramFilter(
-                        candidateBytes: candidateSpan,
-                        queryTrigrams: query.trigrams,
-                        maxEditDistance: effectiveMaxEditDistance
-                    ) {
-                        return nil
-                    }
-                }
-
-                // Phase 3: Prefix scoring
-                let prefixDistance = scorePrefix(
-                    querySpan: querySpan,
-                    candidateSpan: candidateSpan,
-                    query: query,
-                    edConfig: edConfig,
-                    candidateLength: actualCandidateLength,
-                    state: &state,
-                    editDistanceState: &editDistanceState,
-                    matchPositions: &matchPositions,
-                    alignmentState: &alignmentState
-                )
-
-                // Phase 4: Substring scoring
-                scoreSubstring(
-                    querySpan: querySpan,
-                    candidateSpan: candidateSpan,
-                    query: query,
-                    edConfig: edConfig,
-                    candidateLength: actualCandidateLength,
-                    prefixDistance: prefixDistance,
-                    state: &state,
-                    editDistanceState: &editDistanceState,
-                    matchPositions: &matchPositions,
-                    alignmentState: &alignmentState
-                )
-
-                // Phase 5: Subsequence scoring
-                scoreSubsequence(
-                    querySpan: querySpan,
-                    candidateSpan: candidateSpan,
-                    query: query,
-                    edConfig: edConfig,
-                    candidateLength: actualCandidateLength,
-                    state: &state,
-                    matchPositions: &matchPositions,
-                    alignmentState: &alignmentState
-                )
-
-                // Phase 6: Acronym scoring
-                scoreAcronym(
-                    querySpan: querySpan,
-                    candidateSpan: candidateSpan,
-                    candidateUTF8: candidateUTF8,
-                    query: query,
-                    candidateLength: actualCandidateLength,
-                    acronymWeight: edConfig.acronymWeight,
-                    state: &state,
-                    wordInitials: &wordInitials
-                )
-
-                if state.bestScore >= query.config.minScore {
-                    return ScoredMatch(score: state.bestScore, kind: state.bestKind)
-                }
-
+        // Prefilter 3: Trigrams (only if query has enough trigrams to be selective)
+        // Skip when threshold (queryTrigrams.count - 3*maxED) is non-positive,
+        // since the filter would accept every candidate anyway.
+        // Space-containing trigrams are excluded at computation time, so this
+        // is safe for multi-word queries (see computeTrigrams for rationale).
+        if query.lowercased.count >= 4
+            && query.trigrams.count > 3 * effectiveMaxEditDistance
+        {
+            if !passesTrigramFilter(
+                candidateBytes: candidateSpan,
+                queryTrigrams: query.trigrams,
+                maxEditDistance: effectiveMaxEditDistance
+            ) {
                 return nil
             }
         }
+
+        // Phase 3: Prefix scoring
+        let prefixDistance = scorePrefix(
+            querySpan: querySpan,
+            candidateSpan: candidateSpan,
+            query: query,
+            edConfig: edConfig,
+            candidateLength: actualCandidateLength,
+            state: &state,
+            editDistanceState: &editDistanceState,
+            matchPositions: &matchPositions,
+            alignmentState: &alignmentState
+        )
+
+        // Phase 4: Substring scoring
+        scoreSubstring(
+            querySpan: querySpan,
+            candidateSpan: candidateSpan,
+            query: query,
+            edConfig: edConfig,
+            candidateLength: actualCandidateLength,
+            prefixDistance: prefixDistance,
+            state: &state,
+            editDistanceState: &editDistanceState,
+            matchPositions: &matchPositions,
+            alignmentState: &alignmentState
+        )
+
+        // Phase 5: Subsequence scoring
+        scoreSubsequence(
+            querySpan: querySpan,
+            candidateSpan: candidateSpan,
+            query: query,
+            edConfig: edConfig,
+            candidateLength: actualCandidateLength,
+            state: &state,
+            matchPositions: &matchPositions,
+            alignmentState: &alignmentState
+        )
+
+        // Phase 6: Acronym scoring
+        scoreAcronym(
+            querySpan: querySpan,
+            candidateSpan: candidateSpan,
+            candidateUTF8: candidateUTF8,
+            query: query,
+            candidateLength: actualCandidateLength,
+            acronymWeight: edConfig.acronymWeight,
+            state: &state,
+            wordInitials: &wordInitials
+        )
+
+        if state.bestScore >= query.config.minScore {
+            return ScoredMatch(score: state.bestScore, kind: state.bestKind)
+        }
+
+        return nil
     }
 
     // MARK: - Phase Methods
